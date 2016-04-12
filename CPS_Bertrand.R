@@ -73,6 +73,6 @@ gc()
 # you will run out of memory.  go figure.
 
 # save the cross-sectional cumulative gss r data frame inside an r data file (.rda)
-save( GSS.CS.df , file = "GSS.CS.rda" )
+save( CPS.df , file = "CPS.rda" )
 
 summary(CPS.df$year)
