@@ -411,33 +411,31 @@ z$cohortb[z$cohort<=3] <- 3
 z$cohortb[z$cohort==4] <- 4
 z$cohortb[z$cohort>=5] <- 5
 
-##################################################
-# Merge men's earnings pctile from the March CPS #
-##################################################
+#################################################
+##merge men's earnings pctile from the March CPS
+#################################################
 
 z$age_g <- trunc(z$age*2/10)
+table(z$age_g)
 
-# Merge from CPS
-
-# sort age_g educat year
-# merge age_g educat year using ../../CPS/marchcps
-# tab     _merge
-# keep if _merge==3
-
+#merge from CPS
 ##########################
-# gen career             #
+#sort age_g educat year
+#merge age_g educat year using ../../CPS/marchcps
+#tab     _merge
+#keep if _merge==3
 ##########################
 
+#gen career
+##########################
 #z$career <- z$rinc > z$p25
 
 #gen career=rinc>p25
 #replace career=0 if rinc==.
-
 ##########################
 
 #Some crazy weighting going on here
 ##################################
-
 #z$n <- 1
 #z$n[sex!=2 & educat!=4] <- NA
 
@@ -451,22 +449,24 @@ z$age_g <- trunc(z$age*2/10)
 #gen weight=snw/sage
 ##################################
 
-z$kid <- z$nokid==0
-z$family <- z$married * z$kid
-# z$careerkid <- z$career * z$married
-# z$careerfamily <- z$career * z$family
-z$keepinghousekid <- z$keepinghouse * z$kid
+z$kid <- nokid==0
+z$family <- married*kid
+z$careerkid <- career*married
+z$careerfamily <- career*family
+z$keepinghousekid <- keepinghouse*kid
 
 
-############################################################
-# Invert scale of happiness and job satisfaction questions #
-############################################################
+#################################################
+##invert scale of happiness and job satisfaction questions
+#################################################
 
-# Invert life satisfaction
+#invert life satisfaction
 z$happyb <- NA
 z$happyb[z$happy==3] <- 1
 z$happyb[z$happy==2] <- 2
 z$happyb[z$happy==1] <- 3
+
+table(z$happy, z$happyb)
 
 z$happy <- NULL
 z <- rename(z, c(happyb="happy"))
@@ -477,6 +477,8 @@ z$satjobb[z$satjob==4] <- 1
 z$satjobb[z$satjob==3] <- 2
 z$satjobb[z$satjob==2] <- 3
 z$satjobb[z$satjob==1] <- 4
+
+table(z$satjob, z$satjobb)
 
 z$satjob <- NULL
 z <- rename(z, c(satjobb="satjob"))
@@ -491,6 +493,8 @@ z$satfamb[z$satfam==3] <- 5
 z$satfamb[z$satfam==2] <- 6
 z$satfamb[z$satfam==1] <- 7
 
+table(z$satfam, z$satfamb)
+
 z$satfam <- NULL
 z <- rename(z, c(satfamb="satfam"))
 
@@ -502,11 +506,7 @@ table(z$bdec)
 
 z$vhappyb <- vhappy*100
 
-
-##################
-# Sum statistics #
-##################
-
+##SUM STATS
 summary(year[sex==2 & educat==4]) 
 summary(vhappy[sex==2 & educat==4]) 
 summary(happy[sex==2 & educat==4]) 
@@ -532,17 +532,16 @@ table(cohort[sex==2 & educat==4])
 
 m <- subset(z, sex==2 & educat == 4)
 
-M1 <- lm(vhappy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
-M2 <- lm(happy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
+M1 <- lm(vhappy ~ career + married + careermarried + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = m)
+M2 <- lm(happy ~ career + married + careermarried + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = m)
 
 n <- subset(z, sex==2 & educat == 4 & age>=40)
 
-M3 <- lm(vhappy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = n)
+M3 <- lm(vhappy ~ career + married + careermarried + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = n)
 
-M4 <- lm(vhappy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
-M5 <- lm(happy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
-M6 <- lm(happy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = n)
-
+M4 <- lm(vhappy ~ career + family + careerfamily + age agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = m)
+M5 <- lm(happy ~ career + family + careerfamily + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = m)
+M6 <- lm(happy ~ career + family + careerfamily + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = n)
 
 
 ##########
@@ -554,7 +553,22 @@ t <- subset(z, sex==2 & educat == 4 & married==1)
 #define categories for husband's income
 table(z$othinc)
 
-z$othinccat=int(othinc/5000)
-replace othinccat=-1 if othinc==.
+z$othinccat <- trunc(z$othinc/5000)
+z$othinccat[is.na(z$othinc)] <- -1
 
-M1 <- lm(vhappy ~ career $controls, data = t)
+table(z$othinccat)
+
+M7 <- lm(vhappy ~ career + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = t)
+M8 <- lm(vhappy ~ career + as.factor(othinccat) + age agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = t)
+M9 <- lm(vhappy ~ career + keepinghouse + as.factor(othinccat) + age agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = t)
+
+xi:reg vhappy  career keepinghouse $controls i.othinccat if sex==2 & educat==4  & married==1
+outreg career keepinghouse using table2,bdec(3) br se append
+
+reg vhappy  career $controls if sex==2 & educat==4 & family==1
+outreg career using table2,bdec(3) br se append
+xi:reg vhappy  career $controls i.othinccat if sex==2 & educat==4 & family==1
+outreg career using table2,bdec(3) br se append
+xi:reg vhappy  career keepinghouse $controls i.othinccat if sex==2 & educat==4  & family==1
+outreg career keepinghouse using table2,bdec(3) br se append
+

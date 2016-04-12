@@ -1,0 +1,22 @@
+---
+title: "Analyses for Friday"
+author: "Philip"
+date: "12 Apr 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Analyses 
+
+- Create occupational categories: For the occ1980 to start with. 
+
+- Correlations between satisfaction and working hours - ideally within occupations
+
+
+- Descriptive, satisfaction: Gender, age, family status, income, race, education
+  - (Can also be for subsamples)
+  
+
