@@ -437,6 +437,7 @@ z$cohortb[z$cohort>=5] <- 5
 #################################################
 
 z$age_g <- trunc(z$age*2/10)
+table(z$age_g)
 
 #merge from CPS
 ##########################
@@ -552,17 +553,16 @@ table(cohort[sex==2 & educat==4])
 
 m <- subset(z, sex==2 & educat == 4)
 
-M1 <- lm(vhappy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
-M2 <- lm(happy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
+M1 <- lm(vhappy ~ career + married + careermarried + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = m)
+M2 <- lm(happy ~ career + married + careermarried + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = m)
 
 n <- subset(z, sex==2 & educat == 4 & age>=40)
 
-M3 <- lm(vhappy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = n)
+M3 <- lm(vhappy ~ career + married + careermarried + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = n)
 
-M4 <- lm(vhappy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
-M5 <- lm(happy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
-M6 <- lm(happy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = n)
-
+M4 <- lm(vhappy ~ career + family + careerfamily + age agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = m)
+M5 <- lm(happy ~ career + family + careerfamily + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = m)
+M6 <- lm(happy ~ career + family + careerfamily + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = n)
 
 
 ##########
@@ -574,9 +574,22 @@ t <- subset(z, sex==2 & educat == 4 & married==1)
 #define categories for husband's income
 table(z$othinc)
 
-z$othinccat=int(othinc/5000)
-replace othinccat=-1 if othinc==.
+z$othinccat <- trunc(z$othinc/5000)
+z$othinccat[is.na(z$othinc)] <- -1
 
-M1 <- lm(vhappy ~ career $controls, data = t)
+table(z$othinccat)
 
+M7 <- lm(vhappy ~ career + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = t)
+M8 <- lm(vhappy ~ career + as.factor(othinccat) + age agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = t)
+M9 <- lm(vhappy ~ career + keepinghouse + as.factor(othinccat) + age agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = t)
+
+xi:reg vhappy  career keepinghouse $controls i.othinccat if sex==2 & educat==4  & married==1
+outreg career keepinghouse using table2,bdec(3) br se append
+
+reg vhappy  career $controls if sex==2 & educat==4 & family==1
+outreg career using table2,bdec(3) br se append
+xi:reg vhappy  career $controls i.othinccat if sex==2 & educat==4 & family==1
+outreg career using table2,bdec(3) br se append
+xi:reg vhappy  career keepinghouse $controls i.othinccat if sex==2 & educat==4  & family==1
+outreg career keepinghouse using table2,bdec(3) br se append
 
