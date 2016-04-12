@@ -392,17 +392,19 @@ z <- z[ which(z$working==1 | z$keepinghouse==1), ]
 z <- z[ which(z$age>=25 & z$age<=54), ]
 
 ##### Subsample function: t <- subset(t, t$working==1 | keepinghouse == 1) ##
+attach(z)
 
 
 # tab year if vhappy~=.
 table(z$vhappy, z$year)
 summary(z$vhappy)
 
-z$linc <- log(z$inc)
-z$lrinc <- log(z$rinc)
-z$lothinc <- log(z$othinc) ### PROBLEM (non-numeric argument to mathematical function)
+z$linc <- log(inc)
+z$lrinc <- log(rinc)
+z$lothinc <- log(othinc) ### PROBLEM (non-numeric argument to mathematical function)
 
 z$by <- z$year-z$age
+summary(z$by)
 
 # drop cohort
 z$cohort <- NULL
@@ -414,9 +416,8 @@ z$cohort[z$by>=1944 & z$by<=1957] <- 4
 z$cohort[z$by>=1958 & z$by<=1973] <- 5
 z$cohort[z$by>=1974 & z$by<=1991] <- 6
 
+table(z$cohort[z$sex==2 & z$educat==4])
 table(z$cohort)
-
-# tab cohort if sex==2 & educat==4
 
 z$cohortb <- NA
 z$cohortb[z$cohort<=3] <- 3
@@ -427,12 +428,7 @@ z$cohortb[z$cohort>=5] <- 5
 ##merge men's earnings pctile from the March CPS
 #################################################
 
-#####################
-# Problem: Trunc Function
-#####################
-
-#z$age_g <- truncate(age*2/10)
-
+z$age_g <- trunc(z$age*2/10)
 
 #merge from CPS
 ##########################
@@ -444,22 +440,25 @@ keep if _merge==3
 
 #gen career
 ##########################
-gen career=rinc>p25
-replace career=0 if rinc==.
+#z$career <- z$rinc > z$p25
+
+#gen career=rinc>p25
+#replace career=0 if rinc==.
 ##########################
 
-#crazy things are going on
+#Some crazy weighting going on here
 ##################################
-gen n=1
-replace n=. if sex~=2 & educat~=4
-egen sn=sum(n),by(cohortb)
-egen sage=sum(n),by(age cohortb)
-gen w=sage/sn
-gen wcohort4=w
-replace wcohort4=. if cohortb~=4
-egen weightcohort4=mean(wcohort4),by(age)
-gen snw=sn*weightcohort4
-gen weight=snw/sage
+#z$n <- 1
+#z$n[sex!=2 & educat!=4] <- NA
+
+#egen sn=sum(n),by(cohortb)
+#egen sage=sum(n),by(age cohortb)
+#gen w=sage/sn
+#gen wcohort4=w
+#replace wcohort4=. if cohortb~=4
+#egen weightcohort4=mean(wcohort4),by(age)
+#gen snw=sn*weightcohort4
+#gen weight=snw/sage
 ##################################
 
 z$kid <- nokid==0
@@ -479,11 +478,6 @@ z$happyb[z$happy==3] <- 1
 z$happyb[z$happy==2] <- 2
 z$happyb[z$happy==1] <- 3
 
-#Move to the front (package for rename function)
-#######################
-#install.packages("reshape")
-library(reshape)
-#######################
 table(z$happy, z$happyb)
 
 z$happy <- NULL
@@ -517,15 +511,26 @@ z$satfam <- NULL
 z <- rename(z, c(satfamb="satfam"))
 
 # generate bdec
-#z$bdec <- trunc(by/10)
+z$bdec <- trunc(z$by/10)
+table(z$bdec)
 
 # macro define controls "age agesq i.year i.race i.bdec"
 
-#log using analysis2.log,replace
-#gen vhappyb=vhappy*100
+z$vhappyb <- vhappy*100
 
 ##SUM STATS
+summary(year[sex==2 & educat==4]) 
+summary(vhappy[sex==2 & educat==4]) 
+summary(happy[sex==2 & educat==4]) 
+summary(career[sex==2 & educat==4]) 
+summary(married[sex==2 & educat==4]) 
+summary(family[sex==2 & educat==4]) 
+summary(careermarried[sex==2 & educat==4]) 
+summary(careerfamily[sex==2 & educat==4])
+summary(age[sex==2 & educat==4])
 
+table(race[sex==2 & educat==4])
+table(cohort[sex==2 & educat==4])
 
 ##Table 1:
 
