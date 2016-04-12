@@ -10,6 +10,8 @@ setwd("~/Documents/CDA/collaborative_projects/Assignment3_P-P") # Unger
 # Load packages
 library(reshape)
 library(gmodels)
+library(car)
+library(plyr)
 
 # Load GSS-data file
 # !Should be sourced!
@@ -23,7 +25,6 @@ rm( GSS.CS.df )
 
 # clear up memory
 gc()
-
 
 ##########################
 # Generate new variables #
@@ -359,7 +360,7 @@ z$def_inc <- z$inc / z$PCEPI * 100
 z$def_othinc <- z$othinc / z$PCEPI * 100
 
 # satisfaction questions
-z$vhappy <- happy==1
+z$vhappy <- z$happy==1
 describe(z$vhappy)
 
 # 4 education categories
@@ -374,13 +375,11 @@ z$educat[z$educ>=16] <- 4
 # Restrict Sample #
 ###################
 
-#keep only people that are either working, or keeping house
+# Keep only people that are either working, or keeping house
 z <- subset(z, z$working==1 | z$keepinghouse == 1)
 
-#keep if age>=25 & age<=54
+# Keep if age>=25 & age<=54
 z <- subset(z, z$age>=25 & z$age <= 54)
-
-
 
 # Take logs to income variables
 z$linc <- log(z$inc)
@@ -391,9 +390,8 @@ z$def_linc <- log(z$inc)
 z$def_lrinc <- log(z$rinc)
 z$def_lothinc <- log(z$othinc)
 
-
+# Cohorts
 z$by <- z$year-z$age
-summary(z$by)
 
 # drop cohort
 z$cohort <- NULL
@@ -405,38 +403,41 @@ z$cohort[z$by>=1944 & z$by<=1957] <- 4
 z$cohort[z$by>=1958 & z$by<=1973] <- 5
 z$cohort[z$by>=1974 & z$by<=1991] <- 6
 
+# Sum statistic !Should probably be deleted!
 table(z$cohort[z$sex==2 & z$educat==4])
-table(z$cohort)
 
 z$cohortb <- NA
 z$cohortb[z$cohort<=3] <- 3
 z$cohortb[z$cohort==4] <- 4
 z$cohortb[z$cohort>=5] <- 5
 
-#################################################
-##merge men's earnings pctile from the March CPS
-#################################################
+##################################################
+# Merge men's earnings pctile from the March CPS #
+##################################################
 
 z$age_g <- trunc(z$age*2/10)
 
-#merge from CPS
+# Merge from CPS
+
+# sort age_g educat year
+# merge age_g educat year using ../../CPS/marchcps
+# tab     _merge
+# keep if _merge==3
+
 ##########################
-sort age_g educat year
-merge age_g educat year using ../../CPS/marchcps
-tab     _merge
-keep if _merge==3
+# gen career             #
 ##########################
 
-#gen career
-##########################
 #z$career <- z$rinc > z$p25
 
 #gen career=rinc>p25
 #replace career=0 if rinc==.
+
 ##########################
 
 #Some crazy weighting going on here
 ##################################
+
 #z$n <- 1
 #z$n[sex!=2 & educat!=4] <- NA
 
@@ -450,24 +451,22 @@ keep if _merge==3
 #gen weight=snw/sage
 ##################################
 
-z$kid <- nokid==0
-z$family <- married*kid
-z$careerkid <- career*married
-z$careerfamily <- career*family
-z$keepinghousekid <- keepinghouse*kid
+z$kid <- z$nokid==0
+z$family <- z$married * z$kid
+# z$careerkid <- z$career * z$married
+# z$careerfamily <- z$career * z$family
+z$keepinghousekid <- z$keepinghouse * z$kid
 
 
-#################################################
-##invert scale of happiness and job satisfaction questions
-#################################################
+############################################################
+# Invert scale of happiness and job satisfaction questions #
+############################################################
 
-#invert life satisfaction
+# Invert life satisfaction
 z$happyb <- NA
 z$happyb[z$happy==3] <- 1
 z$happyb[z$happy==2] <- 2
 z$happyb[z$happy==1] <- 3
-
-table(z$happy, z$happyb)
 
 z$happy <- NULL
 z <- rename(z, c(happyb="happy"))
@@ -478,8 +477,6 @@ z$satjobb[z$satjob==4] <- 1
 z$satjobb[z$satjob==3] <- 2
 z$satjobb[z$satjob==2] <- 3
 z$satjobb[z$satjob==1] <- 4
-
-table(z$satjob, z$satjobb)
 
 z$satjob <- NULL
 z <- rename(z, c(satjobb="satjob"))
@@ -494,8 +491,6 @@ z$satfamb[z$satfam==3] <- 5
 z$satfamb[z$satfam==2] <- 6
 z$satfamb[z$satfam==1] <- 7
 
-table(z$satfam, z$satfamb)
-
 z$satfam <- NULL
 z <- rename(z, c(satfamb="satfam"))
 
@@ -503,11 +498,15 @@ z <- rename(z, c(satfamb="satfam"))
 z$bdec <- trunc(z$by/10)
 table(z$bdec)
 
-# macro define controls "age agesq i.year i.race i.bdec"
+# macro define controls "age agesq as.factor(year) as.factor(race) as.factor(bdec)"
 
 z$vhappyb <- vhappy*100
 
-##SUM STATS
+
+##################
+# Sum statistics #
+##################
+
 summary(year[sex==2 & educat==4]) 
 summary(vhappy[sex==2 & educat==4]) 
 summary(happy[sex==2 & educat==4]) 
@@ -521,10 +520,41 @@ summary(age[sex==2 & educat==4])
 table(race[sex==2 & educat==4])
 table(cohort[sex==2 & educat==4])
 
-##Table 1:
 
+
+# Scatterplot for restricted sample
+#car::scatterplotMatrix()
+
+##########
+##Table 1:
+##########
+#controls: age agesq as.factor(year) as.factor(race) as.factor(bdec)
+
+m <- subset(z, sex==2 & educat == 4)
+
+M1 <- lm(vhappy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
+M2 <- lm(happy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
+
+n <- subset(z, sex==2 & educat == 4 & age>=40)
+
+M3 <- lm(vhappy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = n)
+
+M4 <- lm(vhappy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
+M5 <- lm(happy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
+M6 <- lm(happy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = n)
+
+
+
+##########
 ##Table 2 - focus on married women or women with family - allow to better control for income - use spousal income
+##########
+
+t <- subset(z, sex==2 & educat == 4 & married==1)
 
 #define categories for husband's income
+table(z$othinc)
 
+z$othinccat=int(othinc/5000)
+replace othinccat=-1 if othinc==.
 
+M1 <- lm(vhappy ~ career $controls, data = t)
