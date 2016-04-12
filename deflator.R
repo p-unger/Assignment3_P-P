@@ -4,6 +4,7 @@
 
 
 # Packages
+#install.packages("quantmod")
 library("quantmod")
 
 # environment in which to store data 
