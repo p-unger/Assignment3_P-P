@@ -30,7 +30,6 @@ year.end <- endpoints(a, on = "years")
 yearly <- period.apply(a, INDEX = year.end, FUN = mean)
 PCE <- data.frame(date=index(yearly), coredata(yearly))
 
-PCE <- data.frame(date=index(PCE), coredata(PCE))
 PCE$year <- format(PCE$date, "%Y")
 PCE$date <- NULL
 PCE <- PCE[,c("year", "PCEPI")]
