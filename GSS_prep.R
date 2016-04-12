@@ -418,13 +418,21 @@ z$cohortb[z$cohort>=5] <- 5
 z$age_g <- trunc(z$age*2/10)
 table(z$age_g)
 
-#merge from CPS
+#merge p25 from Bertrand dataset
 ##########################
+load( "CPS.rda" )
+vars <- c("p25", "age_g", "educat", "year")
+df.p25 <- CPS.df[vars]
+d <- merge(z, df.p25, by = c('age_g', 'educat', 'year'))
+
+summary(z$p25)
+
 #sort age_g educat year
 #merge age_g educat year using ../../CPS/marchcps
 #tab     _merge
 #keep if _merge==3
 ##########################
+summary(CPS.df$p25)
 
 #gen career
 ##########################
