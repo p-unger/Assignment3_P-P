@@ -7,8 +7,10 @@ setwd("~/R_data/Assignment3_P-P") # Staender
 
 # Load packages
 #install.packages("reshape")
+install.packages("car")
 library(reshape)
 library(gmodels)
+library(car)
 
 
 # now the r data frame can be loaded directly
@@ -368,6 +370,12 @@ z$def_rinc <- z$rinc / z$PCEPI * 100
 z$def_inc <- z$inc / z$PCEPI * 100
 
 
+z$def_othinc <- z$def_inc - z$def_rinc ##error
+z$othinc <- z$inc - z$rinc
+summary(z$othinc)
+z$othinc[z$othinc<0] <- 0
+
+
 # satisfaction questions
 z$vhappy <- happy==1
 
@@ -432,10 +440,10 @@ z$age_g <- trunc(z$age*2/10)
 
 #merge from CPS
 ##########################
-sort age_g educat year
-merge age_g educat year using ../../CPS/marchcps
-tab     _merge
-keep if _merge==3
+#sort age_g educat year
+#merge age_g educat year using ../../CPS/marchcps
+#tab     _merge
+#keep if _merge==3
 ##########################
 
 #gen career
@@ -514,7 +522,7 @@ z <- rename(z, c(satfamb="satfam"))
 z$bdec <- trunc(z$by/10)
 table(z$bdec)
 
-# macro define controls "age agesq i.year i.race i.bdec"
+# macro define controls "age agesq as.factor(year) as.factor(race) as.factor(bdec)"
 
 z$vhappyb <- vhappy*100
 
@@ -532,10 +540,43 @@ summary(age[sex==2 & educat==4])
 table(race[sex==2 & educat==4])
 table(cohort[sex==2 & educat==4])
 
-##Table 1:
 
+
+# Scatterplot for restricted sample
+#car::scatterplotMatrix()
+
+##########
+##Table 1:
+##########
+#controls: age agesq as.factor(year) as.factor(race) as.factor(bdec)
+
+m <- subset(z, sex==2 & educat == 4)
+
+M1 <- lm(vhappy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
+M2 <- lm(happy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
+
+n <- subset(z, sex==2 & educat == 4 & age>=40)
+
+M3 <- lm(vhappy ~ career married careermarried age agesq as.factor(year) as.factor(race) as.factor(bdec), data = n)
+
+M4 <- lm(vhappy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
+M5 <- lm(happy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = m)
+M6 <- lm(happy ~ career family careerfamily age agesq as.factor(year) as.factor(race) as.factor(bdec), data = n)
+
+
+
+##########
 ##Table 2 - focus on married women or women with family - allow to better control for income - use spousal income
+##########
+
+t <- subset(z, sex==2 & educat == 4 & married==1)
 
 #define categories for husband's income
+table(z$othinc)
+
+z$othinccat=int(othinc/5000)
+replace othinccat=-1 if othinc==.
+
+M1 <- lm(vhappy ~ career $controls, data = t)
 
 
