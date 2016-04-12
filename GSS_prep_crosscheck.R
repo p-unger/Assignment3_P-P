@@ -1,16 +1,18 @@
-#################################################################################
-# Data Set Preperation #
-#################################################################################
+############################
+# Data Set Preperation     #
+############################
 
 # set your working directory.
-setwd("~/R_data/GSS")
+setwd("~/R_data/Assignment3_P-P") # Staender
+setwd("~/Documents/CDA/collaborative_projects/Assignment3_P-P") # Unger
+
 
 # Load packages
+library(reshape)
 library(gmodels)
 
-
-# now the r data frame can be loaded directly
-# from your local hard drive.  this is much faster.
+# Load GSS-data file
+# !Should be sourced!
 load( "GSS.CS.rda" )
 
 # copy to a different object
@@ -23,26 +25,9 @@ rm( GSS.CS.df )
 gc()
 
 
-#############
-#consider age 25 to 54
-#############
-
-#keep if age>=25 & age<=54
-
-# based on variable values
-z <- z[ which(z$age>=25 & z$age<=54), ]
-
-#tab year
-frq_year <- table(z$year) 
-frq_year
-
-#tab wrkstat
-frq_wrkstat <- table(z$wrkstat) 
-frq_wrkstat
-
-#tab wrkstat
-frq_marital <- table(z$marital) 
-frq_marital
+##########################
+# Generate new variables #
+##########################
 
 # fix z as reference dataset
 attach(z)
@@ -54,13 +39,13 @@ z$working <- wrkstat == 1 | wrkstat == 2
 z$keepinghouse <- wrkstat == 7
 
 
-
 # generate married dummies
 z$married <- marital==1
 z$nevermarried <- marital==5
 
 # generate no-kids dummy
-y$nokid <- childs==0
+z$nokid <- childs==0
+
 
 # generate other variables
 z$agesq <- age*age
@@ -85,14 +70,6 @@ z$rinc77[z$rincom77==13] <- 21500
 z$rinc77[z$rincom77==14] <- 23750
 z$rinc77[z$rincom77==15] <- 37500
 z$rinc77[z$rincom77==16] <- 70000
-
-
-# tab year if rinc77~=.
-
-frq_rinc77 <- table(z$rinc77) 
-frq_rinc77
-summary(z$rinc77)
-
 
 # gen rinc82
 z$rinc82 <- NA
@@ -215,7 +192,7 @@ z$rinc06[z$rincom06==23] <- 120000
 z$rinc06[z$rincom06==24] <- 140000
 z$rinc06[z$rincom06==25] <- 160000
 
-# FAMILY INCOME -family income questioned is modelled same way as r's income question
+## FAMILY INCOME -family income questioned is modelled same way as r's income question
 
 # gen inc77
 z$inc77 <- NA
@@ -235,12 +212,6 @@ z$inc77[z$income77==13] <- 21500
 z$inc77[z$income77==14] <- 23750
 z$inc77[z$income77==15] <- 37500
 z$inc77[z$income77==16] <- 70000
-
-
-# tab year if inc77~=.
-frq_inc77 <- table(z$inc77) 
-frq_inc77
-summary(z$inc77)
 
 ## gen inc82
 z$inc82 <- NA
@@ -363,34 +334,33 @@ z$inc06[z$income06==23] <- 120000
 z$inc06[z$income06==24] <- 140000
 z$inc06[z$income06==25] <- 160000
 
-frq_inc06 <- table(z$inc06) 
-frq_inc06
-summary(z$inc06)
-
 # Create single income variables
 
 z <- transform(z, rinc = rowMeans(z[, c("rinc77","rinc82", "rinc86", "rinc91", "rinc98", "rinc06")], na.rm = TRUE))
 z <- transform(z, inc = rowMeans(z[, c("inc77","inc82", "inc86", "inc91", "inc98", "inc06")], na.rm = TRUE))
 
-# cross-check distribution of combined income variables (squares with stata)
-frq_inc <- table(z$inc) 
-frq_rinc
-summary(z$inc)
+##################
+# Run deflator.R #
+##################
 
-### Run deflator.R ###
+# ! NEEDS TO BE SOURCED ! #
 
 # Merge PCE and deflator
 z <- merge(z, PCE, by = "year")
 
+
+# Create otherincome variable
+z$othinc <- z$inc - z$rinc
+z$othinc[z$othinc<0] <- 0
+
 # deflate
 z$def_rinc <- z$rinc / z$PCEPI * 100
 z$def_inc <- z$inc / z$PCEPI * 100
-
-
-##### Subsample function: t <- subset(t, t$working==1 | keepinghouse == 1) ##
+z$def_othinc <- z$othinc / z$PCEPI * 100
 
 # satisfaction questions
 z$vhappy <- happy==1
+describe(z$vhappy)
 
 # 4 education categories
 
@@ -400,26 +370,30 @@ z$educat[z$educ==12] <- 2
 z$educat[z$educ>12 & z$educ<16] <- 3
 z$educat[z$educ>=16] <- 4
 
-table(z$educat)
-summary(z$educat)
+###################
+# Restrict Sample #
+###################
 
-## keep only people that are either working, or keeping house
+#keep only people that are either working, or keeping house
+z <- subset(z, z$working==1 | z$keepinghouse == 1)
 
-z <- z[ which(z$working==1 | keepinghouse==1), ]
-t <- z[ which(z$age>=25 & z$age<=54), ]
-z <- t
+#keep if age>=25 & age<=54
+z <- subset(z, z$age>=25 & z$age <= 54)
 
 
-# tab year if vhappy~=.
-frq_vhap_yr <- table(z$vhappy, z$year)
-frq_vhap_yr
-summary(z$vhappy)
 
-z$linc <- log(inc)
-z$lrinc <- log(rinc)
-z$lothinc <- log(othinc)
+# Take logs to income variables
+z$linc <- log(z$inc)
+z$lrinc <- log(z$rinc)
+z$lothinc <- log(z$othinc)
 
-z$by <- year-age
+z$def_linc <- log(z$inc)
+z$def_lrinc <- log(z$rinc)
+z$def_lothinc <- log(z$othinc)
+
+
+z$by <- z$year-z$age
+summary(z$by)
 
 # drop cohort
 z$cohort <- NULL
@@ -431,10 +405,8 @@ z$cohort[z$by>=1944 & z$by<=1957] <- 4
 z$cohort[z$by>=1958 & z$by<=1973] <- 5
 z$cohort[z$by>=1974 & z$by<=1991] <- 6
 
-frq_cohort <- table(z$cohort)
-frq_cohort
-
-# tab cohort if sex==2 & educat==4
+table(z$cohort[z$sex==2 & z$educat==4])
+table(z$cohort)
 
 z$cohortb <- NA
 z$cohortb[z$cohort<=3] <- 3
@@ -445,12 +417,7 @@ z$cohortb[z$cohort>=5] <- 5
 ##merge men's earnings pctile from the March CPS
 #################################################
 
-#####################
-# Problem: Trunc Function
-#####################
-
-#z$age_g <- truncate(age*2/10)
-
+z$age_g <- trunc(z$age*2/10)
 
 #merge from CPS
 ##########################
@@ -462,22 +429,25 @@ keep if _merge==3
 
 #gen career
 ##########################
-gen career=rinc>p25
-replace career=0 if rinc==.
+#z$career <- z$rinc > z$p25
+
+#gen career=rinc>p25
+#replace career=0 if rinc==.
 ##########################
 
-#crazy things are going on
+#Some crazy weighting going on here
 ##################################
-gen n=1
-replace n=. if sex~=2 & educat~=4
-egen sn=sum(n),by(cohortb)
-egen sage=sum(n),by(age cohortb)
-gen w=sage/sn
-gen wcohort4=w
-replace wcohort4=. if cohortb~=4
-egen weightcohort4=mean(wcohort4),by(age)
-gen snw=sn*weightcohort4
-gen weight=snw/sage
+#z$n <- 1
+#z$n[sex!=2 & educat!=4] <- NA
+
+#egen sn=sum(n),by(cohortb)
+#egen sage=sum(n),by(age cohortb)
+#gen w=sage/sn
+#gen wcohort4=w
+#replace wcohort4=. if cohortb~=4
+#egen weightcohort4=mean(wcohort4),by(age)
+#gen snw=sn*weightcohort4
+#gen weight=snw/sage
 ##################################
 
 z$kid <- nokid==0
@@ -497,11 +467,6 @@ z$happyb[z$happy==3] <- 1
 z$happyb[z$happy==2] <- 2
 z$happyb[z$happy==1] <- 3
 
-#Move to the front (package for rename function)
-#######################
-#install.packages("reshape")
-#library(reshape)
-#######################
 table(z$happy, z$happyb)
 
 z$happy <- NULL
@@ -535,15 +500,26 @@ z$satfam <- NULL
 z <- rename(z, c(satfamb="satfam"))
 
 # generate bdec
-#z$bdec <- trunc(by/10)
+z$bdec <- trunc(z$by/10)
+table(z$bdec)
 
 # macro define controls "age agesq i.year i.race i.bdec"
 
-#log using analysis2.log,replace
-#gen vhappyb=vhappy*100
+z$vhappyb <- vhappy*100
 
 ##SUM STATS
+summary(year[sex==2 & educat==4]) 
+summary(vhappy[sex==2 & educat==4]) 
+summary(happy[sex==2 & educat==4]) 
+summary(career[sex==2 & educat==4]) 
+summary(married[sex==2 & educat==4]) 
+summary(family[sex==2 & educat==4]) 
+summary(careermarried[sex==2 & educat==4]) 
+summary(careerfamily[sex==2 & educat==4])
+summary(age[sex==2 & educat==4])
 
+table(race[sex==2 & educat==4])
+table(cohort[sex==2 & educat==4])
 
 ##Table 1:
 
@@ -551,8 +527,4 @@ z <- rename(z, c(satfamb="satfam"))
 
 #define categories for husband's income
 
-
-##############
-# LIKE BUT BETTER -- For sure. 
-##############
 
