@@ -7,7 +7,7 @@ output: pdf_document
 
 ```{r, message=FALSE, include=FALSE}
 # Load packages and create BibTeX file for R-packages
-PackagesUsed <- c("ggplot2", "repmis", "plyr", "dplyr", "MASS", "Hmisc")
+PackagesUsed <- c("ggplot2", "repmis", "plyr", "dplyr", "MASS", "Hmisc", "interplot", "gridExtra", "repmis")
 
 # Set working directory
 #setwd("~/Documents/CDA/collaborative_projects/Assignment3_P-P") # Unger
@@ -184,5 +184,5 @@ grid.arrange(interM3, interM4, ncol = 2)
 ```
 
 # Software and packages used for the analysis
-The analysis is done in R [@CiteR] with the use of the following packages: "doBy" [@R-doBy], "ggplot2" [@R-ggplot2], "repmis" [@R-repmis] and "dplyr" [@R-dplyr].
+The analysis is done in R [@CiteR] with the use of the following packages: "ggplot2" [@R-ggplot2], "repmis" [@R-repmis], "plyr" [@R-plyr], "dplyr" [@R-dplyr], "MASS" [@R-MASS], "Hmisc" [@R-Hmisc], "interplot" [@R-interplot] and "gridExtra" [@R-gridExtra]
 
