@@ -3,7 +3,7 @@
 ############################
 
 # set your working directory.
-# setwd("~/R_data/Assignment3_P-P") # Staender
+#setwd("~/R_data/Assignment3_P-P") # Staender
 # setwd("~/Documents/CDA/collaborative_projects/Assignment3_P-P") # Unger
 
 
@@ -507,6 +507,9 @@ table(z$bdec)
 # macro define controls "age agesq as.factor(year) as.factor(race) as.factor(bdec)"
 
 z$vhappyb <- vhappy*100
+
+#limiting the data set
+z = z[z$year >= 1977 & z$year < 2012,]
 
 # Save Dataset for Analysis !!
 save( z , file = "data_final.rda" )

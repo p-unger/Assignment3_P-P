@@ -50,10 +50,13 @@ table(z$keepinghousekid, z$sex)
 # Scatterplot for restricted sample
 #car::scatterplotMatrix()
 
+table(z$happy, z$satjob)
+
 ####################
 # Plots to compare male and female overall happiness #
 ####################
 
+# Career YES/NO
 ggplot() + 
   stat_summary(data = z[z$sex == 1,], aes(x=factor(career), y=vhappy), 
                fun.y="mean", geom="point", col="Navyblue") + 
@@ -62,6 +65,7 @@ ggplot() +
   expand_limits(y=c(0.25,0.4)) +
   theme_bw()
 
+# Career / Family
 z$meanhap <- NA
 z$meanhap[z$family==0 & z$career==0] <- "No career, no family"
 z$meanhap[z$family==0 & z$career==1] <- "Career, no family"
@@ -77,9 +81,41 @@ ggplot() +
   stat_summary(data = z[z$sex == 2,], aes(x=factor(meanhap), y=vhappy), 
              fun.y="mean", geom="point", col="Red")
   theme_bw()
+
+# Kids / Married  
   
+z$meanhap_kid <- NA
+z$meanhap_kid[z$kid==0 & z$married==0] <- "Not married, no kids"
+z$meanhap_kid[z$kid==0 & z$married==1] <- "Married, no kids"
+z$meanhap_kid[z$kid==1 & z$married==0] <- "Not married, kids"
+z$meanhap_kid[z$kid==1 & z$married==1] <- "Married, kids"
   
-  
+ggplot() + 
+  stat_summary(data = z[z$sex == 1,], aes(x=factor(meanhap_kid), y=vhappy), 
+                 fun.y="mean", geom="point", col="Navyblue") +
+  stat_summary(data = z[z$sex == 2,], aes(x=factor(meanhap_kid), y=vhappy), 
+                 fun.y="mean", geom="point", col="Red") +
+  theme_bw()
+
+
+# Kids / Career 
+
+z$meanhap_kidcar <- NA
+z$meanhap_kidcar[z$kid==0 & z$career==0] <- "No career, no kids"
+z$meanhap_kidcar[z$kid==0 & z$career==1] <- "Career, no kids"
+z$meanhap_kidcar[z$kid==1 & z$career==0] <- "No career, kids"
+z$meanhap_kidcar[z$kid==1 & z$career==1] <- "Career, kids"
+
+ggplot() + 
+  stat_summary(data = z[z$sex == 1,], aes(x=factor(meanhap_kidcar), y=vhappy), 
+               fun.y="mean", geom="point", col="Navyblue") +
+  stat_summary(data = z[z$sex == 2,], aes(x=factor(meanhap_kidcar), y=vhappy), 
+               fun.y="mean", geom="point", col="Red") +
+  theme_bw()
+
+
+
+
 ##############
 # Regression # 
 ##############
@@ -90,7 +126,7 @@ z$working_ft <- as.numeric(z$working_ft)
 z$working_pt <- as.numeric(z$working_pt)
 
 #### M1 #### FOR WOMEN: Career-Married interaction effect on being very happy (Subset for college educated women)
-
+table(z$vhappy, z$working_ft)
   
 M1a <- lm(vhappy ~ career*married + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
          data = subset(z, sex==2 & educat == 4))
@@ -124,53 +160,92 @@ interM1c <- interplot(M1c, var1 = "married", var2 = "career") +
 
 require("gridExtra")
 
-grid.arrange(interM1a, interM1b, interM1c, ncol = 3) +
-  ggtitle("The interaction effect of having a career on life satisfaction (College educated women)")
-
-
-
-###################
-### I have only worked until here...
-###################
-
-
-
-
-
+grid.arrange(interM1a, interM1b, interM1c, ncol = 3)
+  
 #### M2 #### FOR MEN: Career-Married interaction effect on being very happy (Subset for college educated men)
-M2 <- lm(vhappy ~ career*married + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+
+M2a <- lm(vhappy ~ career*married + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
           data = subset(z, sex==1 & educat == 4))
-summary(M1b)
+summary(M2a)
 
-interM1b <- interplot(M1b, var1 = "married", var2 = "career") +
-  ggtitle("This is a title") +
+M2b <- lm(vhappy ~ career*married + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+          data = subset(z, sex==1 & educat == 4 & working_ft == 1))
+summary(M2b)
+
+M2c <- lm(vhappy ~ career*married + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+          data = subset(z, sex==1 & educat == 4 & working_pt == 1))
+summary(M1c)
+
+interM2a <- interplot(M2a, var1 = "married", var2 = "career") +
+  ggtitle("Working") +
   xlab("career") + 
-  ylab("marriage and satisfaction")
+  ylab("effect of marriage on life satisfaction")
 
-# M1 subset for college educated men
-M2 <- lm(happy ~ career*married + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+interM2b <- interplot(M1b, var1 = "married", var2 = "career") +
+  ggtitle("Working Full-Time") +
+  xlab("career")
+
+interM2c <- interplot(M1c, var1 = "married", var2 = "career") +
+  ggtitle("Working Part-Time") +
+  xlab("career")
+
+grid.arrange(interM2a, interM2b, interM2c, ncol = 3) 
+
+# Compare men and women
+
+interM1 <- interplot(M1a, var1 = "married", var2 = "career") +
+  ggtitle("Working women") +
+  xlab("career") + 
+  ylab("effect of marriage on life satisfaction")
+
+interM2 <- interplot(M2a, var1 = "married", var2 = "career") +
+  ggtitle("Working men") +
+  xlab("career")
+
+grid.arrange(interM1, interM2, ncol = 2) 
+
+
+#### M3 #### FOR WOMEN: Career-Family interaction effect on being very happy (Subset for college educated women)
+
+M3 <- lm(vhappy ~ career*family + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
          data = subset(z, sex==2 & educat == 4))
-summary(M2)
 
-interM2 <- interplot(M2, var1 = "married", var2 = "career") +
-  ggtitle("This is a title") +
+#### M4 #### FOR MEN: Career-Family interaction effect on being very happy (Subset for college educated women)
+
+M4 <- lm(vhappy ~ career*family + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+         data = subset(z, sex==1 & educat == 4))
+
+
+# Compare men and women (Career-Family interaction)
+
+interM3 <- interplot(M3, var1 = "family", var2 = "career") +
+  ggtitle("Working women") +
   xlab("career") + 
-  ylab("marriage and satisfaction")
+  ylab("effect of marriage on life satisfaction")
 
-require("gridExtra")
+interM4 <- interplot(M4, var1 = "family", var2 = "career") +
+  ggtitle("Working men") +
+  xlab("career")
 
-grid.arrange(interM1, interM1b, interM2, nrow = 2)
+grid.arrange(interM3, interM4, ncol = 2) 
 
-n <- subset(z, sex==2 & educat == 4 & age>=40)
+#### M5 #### FOR WOMEN: Control for kids - 
+# Career-Family interaction effect on being very happy (Subset for college educated women)
 
-M3 <- lm(vhappy ~ career + married + careermarried + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = n)
+M5 <- lm(vhappy ~ career*married + kid + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+         data = subset(z, sex==2 & educat == 4))
+summary(M5)
 
-M4 <- lm(vhappy ~ career + family + careerfamily + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = m)
-M5 <- lm(happy ~ career + family + careerfamily + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = m)
-M6 <- lm(happy ~ career + family + careerfamily + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), data = n)
+#### M6 #### FOR MEN: Control for kids - 
+# Career-Family interaction effect on being very happy (Subset for college educated women)
 
-load("~/R_data/Assignment3_P-P/CPS.rda")
-write.csv(CPS.df, "CPS.csv")
+M6 <- lm(vhappy ~ career*married + kid + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+         data = subset(z, sex==1 & educat == 4))
+summary(M6)
+
+####################
+# END #
+####################
 
 ##########
 ##Table 2 - focus on married women or women with family - allow to better control for income - use spousal income
