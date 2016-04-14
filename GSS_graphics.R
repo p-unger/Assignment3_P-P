@@ -27,6 +27,8 @@ barplot(sat.freq,
         ylim = c(0, 20000)
 )
 
+
+
 # Histograms
 
 hist(z$hrs1,
@@ -53,7 +55,7 @@ t <- z
 # Age and year v. happiness: full sample
 ggplot(t, aes(x=factor(age), y=vhappy1)) + stat_summary(fun.y="mean", geom="bar", fill="navyblue")
 
-ggplot(t, aes(x=factor(year), y=vhappy1)) + 
+ggplot(t, aes(x=factor(year), y=vhappy)) + 
   stat_summary(fun.y="mean", geom="point", col="Navyblue") + 
   expand_limits(y=c(0.2,0.45)) + 
   theme_bw()              

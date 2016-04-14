@@ -1,0 +1,76 @@
+---
+title: "Analyses"
+author: "Philip & Philipp"
+date: "14 Apr 2016"
+output: pdf_document
+---
+
+```{r, message=FALSE, include=FALSE}
+# Load packages and create BibTeX file for R-packages
+PackagesUsed <- c("ggplot2", "repmis", "plyr", "dplyr", "MASS", "Hmisc")
+
+# Set working directory
+setwd("~/Documents/CDA/collaborative_projects/Assignment3_P-P")
+
+# Load PackagesUsed and create .bib BibTeX file
+repmis::LoadandCite(PackagesUsed, file = "packages.bib", install = FALSE)
+```
+
+```{r}
+if(!file.exists("data_final.rda")) {
+  source('data_combine.R')
+}
+
+# Opens data_final.rda if not already loaded as an object
+if(!exists("z.df" )) {
+  load("data_final.rda")
+}
+```
+
+## Descriptive results
+
+Distribution of happiness variables !should probably be in a table! 
+
+```{r}
+satjob.freq <- table(z$satjob)
+
+barplot(satjob.freq, 
+        col=c("navyblue"),
+        xlab = "Job satisfaction categories",
+        legend = c("Job satisfcation"),
+        ylim = c(0, 17000)
+        )
+
+sat.freq <- table(z$happy)
+
+barplot(sat.freq, 
+        col=c("navyblue"),
+        xlab = "Overall life satisfaction categories",
+        legend = c("Life satisfaction"),
+        ylim = c(0, 20000)
+)
+```
+
+
+# Distribution of work-hours for full-time workers
+```{r}
+hist(z$hrs1[z$working_ft==1],
+     col=c("navyblue"),
+     border = "White",
+     xlab = "Hours worked last week (full-time employees)"
+)   
+```
+
+# Happiness for women and men at different ages
+
+```{r}
+## Combined
+t <- z
+ggplot() + 
+  stat_summary(data = t[t$sex == 1 & educat == 4,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  stat_summary(data = t[t$sex == 2 & educat == 4,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Red") + 
+  expand_limits(y=c(0.2,0.6)) +
+  theme_bw()
+```
