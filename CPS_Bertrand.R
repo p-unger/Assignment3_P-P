@@ -3,7 +3,7 @@
 ################################################################
 
 # set your working directory.
-setwd("~/R_data/GSS")
+# setwd("~/R_data/GSS")
 
 # set the number of digits shown in all output
 options( digits = 8 )
@@ -67,12 +67,13 @@ CPS.df <- z
 # repeat
 rm( z )
 
-# i have no idea why this works.
+# clear up memory
 gc()
-# but if you don't do this on a 3gb ram machine
-# you will run out of memory.  go figure.
+
 
 # save the cross-sectional cumulative gss r data frame inside an r data file (.rda)
-save( CPS.df , file = "CPS.rda" )
+save( CPS.df , file = "CPS_Bertrand.rda" )
 
-summary(CPS.df$year)
+rm(CPS.location, fn, td, tf)
+
+# summary(CPS.df$year)

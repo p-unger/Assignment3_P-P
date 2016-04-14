@@ -12,22 +12,14 @@
 
 
 # set your working directory.
-setwd("~/R_data/GSS")
+# setwd("~/R_data/GSS")
 
 # set the number of digits shown in all output
 options( digits = 8 )
 
 # Loading packages
 library(foreign) # load foreign package (converts data files into R)
-library(survey)  # load survey package (analyzes complex design surveys)
 
-
-# by default, R will crash if a primary sampling unit (psu) has a single observation
-# set R to produce conservative standard errors instead of crashing
-# http://r-survey.r-forge.r-project.org/survey/exmample-lonely.html
-# by uncommenting this line:
-options( survey.lonely.psu = "adjust" )
-# this setting matches the MISSUNIT option in SUDAAN
 
 ###############################################
 # DATA LOADING COMPONENT - ONLY RUN THIS ONCE #
@@ -100,7 +92,9 @@ gc()
 # but if you don't do this on a 3gb ram machine
 # you will run out of memory.  go figure.
 
+rm(fn, GSS.CS.file.location, td, tf)
+
 # save the cross-sectional cumulative gss r data frame inside an r data file (.rda)
-save( GSS.CS.df , file = "GSS.CS.rda" )
+save( GSS.CS.df , file = "GSS.CS.rda")
 
 
