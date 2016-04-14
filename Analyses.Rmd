@@ -67,9 +67,9 @@ hist(z$hrs1[z$working_ft==1],
 ## Combined
 t <- z
 ggplot() + 
-  stat_summary(data = t[t$sex == 1 & educat == 4,], aes(x=factor(age), y=vhappy1), 
+  stat_summary(data = t[t$sex == 1 & t$educat == 4,], aes(x=factor(age), y=vhappy), 
                fun.y="mean", geom="point", col="Navyblue") + 
-  stat_summary(data = t[t$sex == 2 & educat == 4,], aes(x=factor(age), y=vhappy1), 
+  stat_summary(data = t[t$sex == 2 & t$educat == 4,], aes(x=factor(age), y=vhappy), 
                fun.y="mean", geom="point", col="Red") + 
   expand_limits(y=c(0.2,0.6)) +
   theme_bw()
