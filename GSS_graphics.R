@@ -50,49 +50,99 @@ hist(z$hrs1[z$working_ft==1],
 z$vhappy1 <- as.numeric(z$vhappy)
 t <- z
 
-# Age and year - full sample
+# Age and year v. happiness: full sample
 ggplot(t, aes(x=factor(age), y=vhappy1)) + stat_summary(fun.y="mean", geom="bar", fill="navyblue")
-
-bp <- ggplot(t, aes(x=factor(age), y=vhappy1))
-bp + stat_summary(fun.y="mean", geom="line", fill="navyblue") + expand_limits(y=c(0.4))               
-bp + stat_summary(fun.y="mean", geom="point", col="Navyblue") + expand_limits(y=c(0.25,0.4))               
 
 ggplot(t, aes(x=factor(year), y=vhappy1)) + 
   stat_summary(fun.y="mean", geom="point", col="Navyblue") + 
-  expand_limits(y=c(0.25,0.4))               
+  expand_limits(y=c(0.2,0.45)) + 
+  theme_bw()              
+      
+# Age v. happiness (conditional on gender and college education)
 
-# Age v. happiness (men & women seperate)
-female_educ <- subset(t, sex==2 & educat == 4)
-ggplot(female_educ, aes(x=factor(age), y=vhappy1)) + 
-  stat_summary(fun.y="mean", geom="point", col="Navyblue") + 
-  expand_limits(y=c(0.25,0.6))               
-
-
-male_educ <- subset(t, sex==1 & educat == 4)
-ggplot(male_educ, aes(x=factor(age), y=vhappy1)) + 
-  stat_summary(fun.y="mean", geom="point", col="Navyblue") + 
-  expand_limits(y=c(0.25,0.6))        
-
-
-##
-
+## Men
 ggplot(t) + 
-  stat_summary(data = t[t$sex == 1,], aes(x=factor(age), y=vhappy1), 
-               fun.y="mean", geom="point", col="Navyblue") + 
-  stat_summary(data = t[t$sex == 2,], aes(x=factor(age), y=vhappy1), 
-               fun.y="mean", geom="point", col="Red") + 
-  expand_limits(y=c(0.25,0.4)) +
+  stat_summary(data = t[t$sex == 1 & educat == 4,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Navyblue") +
+  expand_limits(y=c(0.25,0.6)) +
   theme_bw()
 
-##
+## Women
+ggplot(t) + 
+  stat_summary(data = t[t$sex == 2 & educat == 4,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Red") + 
+  expand_limits(y=c(0.25,0.6)) +
+  theme_bw()
 
-aggdata <-aggregate(t, by=list(t$sex, t$age), 
-                            FUN=mean, na.rm=TRUE)
+## Combined
 
-ggplot(aggdata, aes(x=factor(age)), y=vhappy1) + geom_line()
+ggplot() + 
+  stat_summary(data = t[t$sex == 1 & educat == 4,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  stat_summary(data = t[t$sex == 2 & educat == 4,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Red") + 
+  expand_limits(y=c(0.2,0.6)) +
+  theme_bw()
 
+## Combined including full-time restriction
+
+ggplot() + 
+  stat_summary(data = t[t$sex == 1 & t$educat == 4 & t$working_ft == 1,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  stat_summary(data = t[t$sex == 2 & t$educat == 4 & t$working_ft == 1,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Red") + 
+  expand_limits(y=c(0.2,0.6)) +
+  theme_bw()
+
+## Full-time vs. non-full time
+ggplot() + 
+  stat_summary(data = t[t$working_ft == 1,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Purple") + 
+  stat_summary(data = t[t$working_pt == 1,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Darkgreen") + 
+  expand_limits(y=c(0.2,0.6)) +
+  theme_bw()
+
+## Full-time vs. non-full time: Conditional on female
+ggplot() + 
+  stat_summary(data = t[t$working_ft == 1 & t$sex == 2,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Purple") + 
+  stat_summary(data = t[t$working_pt == 1 & t$sex == 2,], aes(x=factor(age), y=vhappy1), 
+               fun.y="mean", geom="point", col="Darkgreen") + 
+  expand_limits(y=c(0.2,0.6)) +
+  theme_bw()
+
+## Happiness v. work-status: Conditional on gender
+
+ggplot() + 
+  stat_summary(data = t[t$sex == 2,], aes(x=factor(wrkstat), y=vhappy1), 
+               fun.y="mean", geom="point", col="Red") + 
+  stat_summary(data = t[t$sex == 1,], aes(x=factor(wrkstat), y=vhappy1), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  expand_limits(y=c(0.2,0.4)) +
+  theme_bw()
+
+## Happiness v. work-status: Conditional on gender and family
+t <- z
+ggplot() + 
+  stat_summary(data = t[t$sex == 2 & t$family == 1,], aes(x=factor(wrkstat), y=vhappy1), 
+               fun.y="mean", geom="point", col="Red") + 
+  stat_summary(data = t[t$sex == 2 & t$family == 0,], aes(x=factor(wrkstat), y=vhappy1), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  expand_limits(y=c(0.2,0.5)) +
+  theme_bw()
+
+
+ggplot() + 
+  stat_summary(data = t[t$sex == 1 & t$family == 1,], aes(x=factor(wrkstat), y=vhappy1), 
+               fun.y="mean", geom="point", col="Red") + 
+  stat_summary(data = t[t$sex == 1 & t$family == 0,], aes(x=factor(wrkstat), y=vhappy1), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  expand_limits(y=c(0.2,0.5)) +
+  theme_bw()
+
+# Commands for printing a graph. !can be deleted!
 png(filename="/Users/Unger/Desktop/graphs/male_educ.png")
-plot(fit)
 dev.off()
 
 # Collapse on means
