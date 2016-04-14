@@ -105,3 +105,21 @@ hist(z$hrs1[z$working_ft==1],
 )   
 ```
 
+# Analysis
+
+## Average reported happiness and workstatus for men and women
+
+This graph is probably redundant. Perhaps the text can be used. 
+
+```{r}
+ggplot() + 
+  stat_summary(data = t[t$sex == 2 ,], aes(x=factor(wrkstat), y=vhappy), 
+               fun.y="mean", geom="point", col="Red") + 
+  stat_summary(data = t[t$sex == 1 ,], aes(x=factor(wrkstat), y=vhappy), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  expand_limits(y=c(20,40)) +
+  theme_bw()
+```
+
+The figure shows that women in full-time positions are less likely to report high life-satisfaction then women in both part-time jobs and women who do housework. The opposite is apparent for men, where full-time employed shows the highest levels of life happiness. Explanations?: Income is a very likely omitted variable, insofar men primarily are the bread-winner, then part-time jobs could proxy low household income.  
+

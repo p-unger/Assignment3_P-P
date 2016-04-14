@@ -98,38 +98,38 @@ ggplot() +
 
 ## Full-time vs. non-full time
 ggplot() + 
-  stat_summary(data = t[t$working_ft == 1,], aes(x=factor(age), y=vhappy1), 
+  stat_summary(data = t[t$working_ft == 1,], aes(x=factor(age), y=vhappy), 
                fun.y="mean", geom="point", col="Purple") + 
-  stat_summary(data = t[t$working_pt == 1,], aes(x=factor(age), y=vhappy1), 
+  stat_summary(data = t[t$working_pt == 1,], aes(x=factor(age), y=vhappy), 
                fun.y="mean", geom="point", col="Darkgreen") + 
-  expand_limits(y=c(0.2,0.6)) +
+  expand_limits(y=c(20,60)) +
   theme_bw()
 
 ## Full-time vs. non-full time: Conditional on female
 ggplot() + 
-  stat_summary(data = t[t$working_ft == 1 & t$sex == 2,], aes(x=factor(age), y=vhappy1), 
+  stat_summary(data = t[t$working_ft == 1 & t$sex == 2,], aes(x=factor(age), y=vhappy), 
                fun.y="mean", geom="point", col="Purple") + 
-  stat_summary(data = t[t$working_pt == 1 & t$sex == 2,], aes(x=factor(age), y=vhappy1), 
+  stat_summary(data = t[t$working_pt == 1 & t$sex == 2,], aes(x=factor(age), y=vhappy), 
                fun.y="mean", geom="point", col="Darkgreen") + 
-  expand_limits(y=c(0.2,0.6)) +
+  expand_limits(y=c(20, 60)) +
   theme_bw()
 
 ## Happiness v. work-status: Conditional on gender
 
 ggplot() + 
-  stat_summary(data = t[t$sex == 2,], aes(x=factor(wrkstat), y=vhappy1), 
+  stat_summary(data = t[t$sex == 2,], aes(x=factor(wrkstat), y=vhappy), 
                fun.y="mean", geom="point", col="Red") + 
-  stat_summary(data = t[t$sex == 1,], aes(x=factor(wrkstat), y=vhappy1), 
+  stat_summary(data = t[t$sex == 1,], aes(x=factor(wrkstat), y=vhappy), 
                fun.y="mean", geom="point", col="Navyblue") + 
-  expand_limits(y=c(0.2,0.4)) +
+  expand_limits(y=c(20,40)) +
   theme_bw()
 
 ## Happiness v. work-status: Conditional on gender and family
 t <- z
 ggplot() + 
-  stat_summary(data = t[t$sex == 2 & t$family == 1,], aes(x=factor(wrkstat), y=vhappy1), 
+  stat_summary(data = t[t$sex == 2 & t$family == 1,], aes(x=factor(wrkstat), y=vhappy), 
                fun.y="mean", geom="point", col="Red") + 
-  stat_summary(data = t[t$sex == 2 & t$family == 0,], aes(x=factor(wrkstat), y=vhappy1), 
+  stat_summary(data = t[t$sex == 2 & t$family == 0,], aes(x=factor(wrkstat), y=vhappy), 
                fun.y="mean", geom="point", col="Navyblue") + 
   expand_limits(y=c(0.2,0.5)) +
   theme_bw()
@@ -141,6 +141,35 @@ ggplot() +
   stat_summary(data = t[t$sex == 1 & t$family == 0,], aes(x=factor(wrkstat), y=vhappy1), 
                fun.y="mean", geom="point", col="Navyblue") + 
   expand_limits(y=c(0.2,0.5)) +
+  theme_bw()
+
+# Spouse's work conditions
+table(t$spwrksta)
+t$spouse_work <- NULL
+t$spouse_work[t$spwrksta==1] <- 1
+t$spouse_work[t$spwrksta==2] <- 2
+t$spouse_work[t$spwrksta==7] <- 7
+
+ggplot() + 
+  stat_summary(data = t[t$ujobsat1 == 0,], aes(x=factor(sex), y=vhappy), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  expand_limits(y=c(20,60)) +
+  theme_bw()
+
+t$hardwork <- NULL
+t$hardwork[t$hrs1 > 50] <- 1
+t$hardwork[t$hrs1 < 50] <- 0
+t$hardwork <- as.numeric(t$hardwork)
+table(t$hardwork)
+
+describe(t$hrs2)
+
+ggplot() + 
+  stat_summary(data = t[t$sex == 1 &  t$hardwork == 1 & t$working_ft == 1 & t$kid == 1,], aes(x=factor(spouse_work), y=vhappy), 
+               fun.y="mean", geom="point", col="Red") + 
+  stat_summary(data = t[t$sex == 1  & t$hardwork == 1 & t$working_ft == 1 & t$kid == 0,], aes(x=factor(spouse_work), y=vhappy), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  expand_limits(y=c(20,60)) +
   theme_bw()
 
 # Commands for printing a graph. !can be deleted!
@@ -164,6 +193,9 @@ t$vhappy <- as.numeric(z$vhappy)
 t <- z
 t$ujobsat1 <- t$satjob == 1 | t$satjob == 2 | t$satjob == 3
 t$ujobsat2 <- t$satjob == 1 | t$satjob == 2 
+
+t$ujobsat1 <- as.numeric(t$ujobsat1)
+table(t$ujobsat1)
 
 t$d_sex <- t$sex == 1
 t$d_sex <- as.numeric(t$d_sex)
