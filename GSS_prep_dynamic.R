@@ -414,7 +414,7 @@ table(z$age_g)
 
 ##merge p25 from Bertrand dataset (CPS_Bertrand.rda)
 
-vars <- c("p25", "age_g", "educat", "year")
+vars <- c("p25", "p50", "age_g", "educat", "year")
 df.p25 <- CPS.df[vars]
 temp <- unique(df.p25)
 temp$year <- as.numeric(as.character(temp$year))
