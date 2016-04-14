@@ -412,9 +412,8 @@ z$cohortb[z$cohort>=5] <- 5
 z$age_g <- trunc(z$age*2/10)
 table(z$age_g)
 
-##merge p25 from Bertrand dataset
+##merge p25 from Bertrand dataset (CPS_Bertrand.rda)
 
-# load( "CPS.rda" )
 vars <- c("p25", "age_g", "educat", "year")
 df.p25 <- CPS.df[vars]
 temp <- unique(df.p25)
