@@ -149,9 +149,54 @@ dev.off()
 
 # Collapse on means
 
+table(t$career[year == 2010])
+
 
 # Regression attempts
 attach(z)
 y <- lm(vhappy ~ hrs1 + rinc + othinc)
 summary(y)
+
+table(z$happy)
+t$vhappy <- z$happy==3
+t$vhappy <- as.numeric(z$vhappy)
+
+t <- z
+t$ujobsat1 <- t$satjob == 1 | t$satjob == 2 | t$satjob == 3
+t$ujobsat2 <- t$satjob == 1 | t$satjob == 2 
+
+t$d_sex <- t$sex == 1
+t$d_sex <- as.numeric(t$d_sex)
+t$ujobsat1 <- as.numeric(t$ujobsat1)
+
+R1 <- lm(ujobsat1 ~ d_sex + age + agesq + hrs1 + def_lrinc + def_lothinc + family + 
+           as.factor(year) + as.factor(occ80),
+          data = subset(t, vhappy == 1 & working_ft == 1))
+summary(R1)
+
+table(t$ujobsat1)
+table(t$vhappy)
+
+R3 <- lm(vhappy ~ d_sex + family + hrs1 +  def_linc + def_othinc + as.factor(occ80), 
+         data = subset(t, ujobsat1 == 0 & year >= 1977 & year < 2011))
+summary(R3)
+
+R2 <- lm(vhappy ~ d_sex,
+         data = subset(t, working_ft == 1 & educat == 4 ))
+summary(R2)
+
+
+# Potential graph for showing correlation between job and overall happiness
+t$jobsat1 <- as.numeric(t$satjob == 1)
+t$jobsat2 <- as.numeric(t$satjob == 2)
+t$jobsat3 <- as.numeric(t$satjob == 3)
+t$jobsat4 <- as.numeric(t$satjob == 4)
+
+l <- lm(vhappy ~ jobsat2 + jobsat3 + jobsat4, data = t)
+summary(l)
+
+# Base regression
+R1 <- lm(ujobsat1 ~ career*married + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+         data = subset(z, sex==2 & educat == 4))
+summary(M1a)
 
