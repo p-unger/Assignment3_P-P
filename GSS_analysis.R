@@ -57,10 +57,11 @@ table(z$happy, z$satjob)
 ####################
 
 # Career YES/NO
+t <- subset(z, z$educat==4)
 ggplot() + 
-  stat_summary(data = z[z$sex == 1,], aes(x=factor(career), y=vhappy), 
+  stat_summary(data = t[t$sex == 1,], aes(x=factor(career), y=vhappy), 
                fun.y="mean", geom="point", col="Navyblue") + 
-  stat_summary(data = z[z$sex == 2,], aes(x=factor(career), y=vhappy), 
+  stat_summary(data = t[t$sex == 2,], aes(x=factor(career), y=vhappy), 
                fun.y="mean", geom="point", col="Red") + 
   expand_limits(y=c(0.25,0.4)) +
   theme_bw()
@@ -72,14 +73,13 @@ z$meanhap[z$family==0 & z$career==1] <- "Career, no family"
 z$meanhap[z$family==1 & z$career==0] <- "No career, family"
 z$meanhap[z$family==1 & z$career==1] <- "Career, family"
 
-table(z$meanhap)
-describe(z$meanhap)
+t <- subset(z, z$educat==4)
 
 ggplot() + 
-  stat_summary(data = z[z$sex == 1,], aes(x=factor(meanhap), y=vhappy), 
+  stat_summary(data = t[t$sex == 1,], aes(x=factor(meanhap), y=vhappy), 
                fun.y="mean", geom="point", col="Navyblue") +
-  stat_summary(data = z[z$sex == 2,], aes(x=factor(meanhap), y=vhappy), 
-             fun.y="mean", geom="point", col="Red")
+  stat_summary(data = t[t$sex == 2,], aes(x=factor(meanhap), y=vhappy), 
+             fun.y="mean", geom="point", col="Red") +
   theme_bw()
 
 # Kids / Married  
