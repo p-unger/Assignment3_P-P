@@ -111,7 +111,7 @@ hist(z$hrs1[z$working_ft==1],
 
 This graph is probably redundant. Perhaps the text can be used. 
 
-```{r}
+```{r, message = FALSE, warning=FALSE}
 ggplot() + 
   stat_summary(data = t[t$sex == 2 ,], aes(x=factor(wrkstat), y=vhappy), 
                fun.y="mean", geom="point", col="Red") + 
