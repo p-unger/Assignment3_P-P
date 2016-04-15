@@ -41,10 +41,6 @@ if(!file.exists("data_final.rda")) {
   source('GSS_prep_dynamic.R')
 }
 
-# Opens data_final.rda if not already loaded as an object
-if(!exists("z.df" )) {
-  load("data_final.rda")
-}
 
 
 

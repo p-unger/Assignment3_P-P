@@ -15,7 +15,6 @@ library(plyr)
 library(Hmisc)
 
 # Load GSS-data file
-# !Should be sourced!
 # load( "GSS.CS.rda" )
 
 # copy to a different object
