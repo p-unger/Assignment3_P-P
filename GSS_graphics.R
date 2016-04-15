@@ -49,7 +49,7 @@ hist(z$hrs1[z$working_ft==1],
 
 
 # Prepare age x happiness
-z$vhappy1 <- as.numeric(z$vhappy)
+
 t <- z
 
 # Age and year v. happiness: full sample

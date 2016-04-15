@@ -358,7 +358,6 @@ z$def_othinc <- z$othinc / z$PCEPI * 100
 z$vhappy <- z$happy==1
 z$vhappy <- as.numeric(z$vhappy)
 
-
 # 4 education categories
 
 z$educat <- NA
@@ -494,21 +493,40 @@ z$satfamb[z$satfam==3] <- 5
 z$satfamb[z$satfam==2] <- 6
 z$satfamb[z$satfam==1] <- 7
 
-table(z$satfam, z$satfamb)
-
 z$satfam <- NULL
 z <- rename(z, c(satfamb="satfam"))
+
+################################
+# Additional variable creation #
+################################
 
 # generate bdec
 z$bdec <- trunc(z$by/10)
 table(z$bdec)
 
-# macro define controls "age agesq as.factor(year) as.factor(race) as.factor(bdec)"
+# Generate alternative scaling of vhappy variable
+z$vhappyb <- z$vhappy*100
 
-z$vhappyb <- vhappy*100
+# Spouse's work conditions
+z$spouse_work <- NULL
+z$spouse_work[z$spwrksta==1] <- 1
+z$spouse_work[z$spwrksta==2] <- 2
+z$spouse_work[z$spwrksta==7] <- 7
 
-#limiting the data set
-z = z[z$year >= 1977 & z$year < 2012,]
+# Job-satisfaction dummies
+z$vjobsat1 <- z$satjob == 4 
+z$vjobsat2 <- z$satjob == 3 | z$satjob == 4
+z$vjobsat1 <- as.numeric(z$vjobsat1)
+z$vjobsat2 <- as.numeric(z$vjobsat2)
+
+
+# Gender dummy for regressions
+z$d_sex <- z$sex == 1
+z$d_sex <- as.numeric(z$d_sex)
+
+
+# limiting the data set to years where career variable is defined
+# z = z[z$year >= 1977 & z$year < 2012,]
 
 # Save Dataset for Analysis !!
 save( z , file = "data_final.rda" )

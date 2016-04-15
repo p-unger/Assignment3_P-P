@@ -10,14 +10,14 @@ output: pdf_document
 PackagesUsed <- c("ggplot2", "repmis", "plyr", "dplyr", "MASS", "Hmisc", "interplot", "gridExtra", "repmis")
 
 # Set working directory
-#setwd("~/Documents/CDA/collaborative_projects/Assignment3_P-P") # Unger
-setwd("~/R_data/Assignment3_P-P") # Staender
+setwd("~/Documents/CDA/collaborative_projects/Assignment3_P-P") # Unger
+# setwd("~/R_data/Assignment3_P-P") # Staender
 
 # Load PackagesUsed and create .bib BibTeX file
 repmis::LoadandCite(PackagesUsed, file = "packages.bib", install = FALSE)
 ```
 
-```{r}
+```{r, include=FALSE}
 if(!file.exists("data_final.rda")) {
   source('data_combine.R')
 }
@@ -29,14 +29,21 @@ if(!exists("z.df" )) {
 ```
 
 # Motivation
-- Populate from google docs
+The research question we wish to pursue for the final project is: "Are career pursuits reconcilable with a happy life?". Our hypothesis is that under some conditions, pursuing a career makes it difficult to reconcile high work intensity with a family or a social life, which could decrease overall life-satisfaction. The link could be particularly pronounced for women for several reasons. One, gender norms could provide a happiness penalty, if they are perceived negatively when pursuing a career. Two, who pursue a career are more likely to have a partner who work fewer hours, which could ease the tension between a career and family life. 
+
+To analyse the question we are using three data-sources. The General Social Survey from the United States, which is ongoing since 1972 and ask survey respondents questions regarding well-being in different dimensions (overall, work, family), demographic characteristics, job-affiliation, income and more. Further, we use the Personal Consumption Expenditure index from the Federal Reserve Bank of St. Louis to inflation-adjust income variables. Last, we use data from the Current Population Survey on income percentiles in age and educational groups, which is collected from the replication file of Bertrand (2013). [Footnote: Bertrand only includes the income percentiles between 1977-2010, and at a later stage we intend to calculate the it directly from the CPS]. 
+
+Based on the available data-sources there are considerable methodological challenges, of which we will elaborate on the most pronounced. First, defining the group of individuals who pursue a career is  problematic. In the literature, career pursuits have been proxied by income thresholds (Goldin, 2004; Bertrand, 2013). However, it neglects that individuals can have career ambitions in low-income jobs, and not all high earners are pursuing a career. In this paper we also deploy an income-threshold variable, but interpret its simply as indicating high-income workers. Second, when analysing sub-populations of the General Social Survey, we face issues of small sample sizes. The GSS has in total surveyed around 60.000 individuals between 1972 and 2014, but when comparing individuals with specific educational attainment, labour-force participation, family status, gender etc., the sample size can be down to a few hundred observations. Third, there is a large literature on whether it is possible to draw inference on subjective well-being measures, see for instance Bertrand (2013), xx or xx. 
+
+The scope of this paper is to combine data from the three above mentioned sources and present descriptive statistics and correlations that are of importance regarding our research question. All steps are done dynamically such that they are easily reproducible. 
 
 # Descriptive results
 
 
 ## Distribution of overall and life satisfaction
 
-!The distribution of the well-being variables should probably be presented in a table.! 
+Two of the central variables for our research is reported happiness and job-satisfaction, which are based on survey respondents' answers to the two questions: "Taken all together, how would you say things are these days?" and "On the whole, how satisfied are you with the work you do?". Figure 1 shows the distribution of answers to the two questions. The former is measured on a three point scale, of which around 60 % of the sample respond a middle happiness level. The latter is measured on a four point scale, and figure 1 shows that a majority of the sample responds either moderate or high satisfaction (score 3 and 4). 
+
 
 
 ```{r}
@@ -60,10 +67,9 @@ barplot(satjob_dist,
 
 ```
 
-Figure x shows the distribution of survey respondents' answer to the two questions: "Taken all together, how would you say things are these days?" and "On the whole, how satisfied are you with the work you do?". The former is measured on a three point scale, of which around 60 % of the sample respond a mid-level happiness level. On the job-satisfaction variable, a majority of the sample responds either moderate or high satisfaction (score 3 and 4). 
 
 ## Happiness in different survey years
-The GSS is conducted between 1972 and 2014. Due to year specific events, unintended differences in how the survey was implemented or trends in overall happiness, there could be year-specific differences. Figure x shows the average share of the population who report high-happiness.
+The GSS is conducted between 1972 and 2014. Due to year specific events, unintended differences in the implementation of the survey or trends in overall happiness, there can be year-specific differences. Figure x shows the average share of the population who report high-happiness.
 
 ``` {r}
 t <- z
