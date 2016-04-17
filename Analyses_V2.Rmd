@@ -1,0 +1,311 @@
+---
+title: "Pair Assignment 3"
+author: "Philip & Philipp"
+date: "14 Apr 2016"
+header-includes:
+    - \usepackage{setspace}\doublespacing
+output: pdf_document
+bibliography: 
+- main.bib
+- packages.bib
+---
+
+```{r, message=FALSE, include=FALSE}
+# Load packages and create BibTeX file for R-packages
+PackagesUsed <- c("ggplot2", "repmis", "plyr", "dplyr", "MASS", "Hmisc", "interplot", "gridExtra", "repmis", "car", "reshape", "gmodels", "quantmod", "foreign")
+
+# Set working directory
+#setwd("~/Documents/CDA/collaborative_projects/Assignment3_P-P") # Unger
+setwd("~/R_data/Assignment3_P-P") # Staender
+
+# Load PackagesUsed and create .bib BibTeX file
+repmis::LoadandCite(PackagesUsed, file = "packages.bib", install = FALSE)
+```
+
+```{r, include=FALSE}
+if(!file.exists("data_final.rda")) {
+  source('data_combine.R')
+}
+
+# Opens data_final.rda if not already loaded as an object
+if(!exists("z.df" )) {
+  load("data_final.rda")
+}
+```
+
+# To do
+- Rewrite (went through it once)
+- Comment on last figure? (done)
+- Insert Bertrand and possibly other references (done)
+- Clean repository; put datasets in a folder. 
+- Re-write readme (what else do we need in the readme? maybe a file-tree??)
+- British or American English?
+- center figure labels
+- Figure 7: is the cut-off at 25th or 50th percentile? 
+- Goldin reference
+- Cut words (currently above 1800)
+
+# Motivation
+The research question we wish to pursue for the final project is: *"Are career pursuits reconcilable with a happy life?"*. Our hypothesis is that under some conditions, pursuing a career makes it difficult to reconcile high work intensity with a family or a social life, which could decrease overall life-satisfaction. The link could be particularly pronounced for women. First, gender norms may impose a happiness penalty, if pursuing a career clashes with dominent gender roles in the society. Second, when both men and women adhere to gender norms and follow a single bread-winner model they may benefit additionally to the norm reward from fewer tensions between career pursuits and family life as genders each specialize on one domaine [@becker1965; -@becker1985]. 
+
+To analyse the question we are using three data-sources. The General Social Survey from the United States, which is ongoing since 1972 and ask survey respondents questions regarding well-being in different dimensions (overall, work, family), demographic characteristics, job-affiliation, income and more. Further, we use the Personal Consumption Expenditure index from the Federal Reserve Bank of St. Louis to adjust income variables for inflation. Last, we use data from the Current Population Survey on income percentiles in age and educational groups, which is collected from the replication file of @bertrand2013.[^Footnote] 
+
+[^Footnote]: Bertrand only includes the income percentiles between 1977-2010, and at a later stage we intend to calculate the income percentiles directly from the CPS]. 
+
+Based on the available data-sources there are considerable methodological challenges, of which we will elaborate on the most pronounced. First, defining the group of individuals who pursue a career is  problematic. In the literature, career pursuits have been proxied by income thresholds (**Goldin, 2004**; @bertrand2013]. However, these measures neglect that individuals can have career ambitions in low-income jobs, and not all high earners are pursuing a career. In this paper we also deploy an income-threshold variable, but interpret it simply as indicating high-income workers. Second, when analysing sub-populations of the General Social Survey, we face issues of small sample sizes. The GSS has surveyed around 60.000 individuals between 1972 and 2014, but when comparing individuals with specific educational attainment, labour-force participation, family status, gender etc., the sample size can be reduced to a few hundred observations. Third, there is a large literature on whether it is possible to draw inference on subjective well-being measures, see for instance Bertrand @bertrand2013 or @kahneman2006. 
+
+The scope of this paper is to combine data from the three above mentioned sources and present descriptive statistics and correlations that are of importance with respect to our research question. All steps are done dynamically, such that they are easily reproducible.
+
+# Descriptive results
+
+
+## Distribution of overall and life satisfaction
+
+Two of the central variables for our research is reported happiness and job-satisfaction, which are based on survey respondents' answers to the two questions: "Taken all together, how would you say things are these days?" and "On the whole, how satisfied are you with the work you do?". Figure 1 shows the distribution of answers to the two questions. The former is measured on a three point scale (higher is better), of which around 60 % of the sample respond a middle happiness level. The latter is measured on a four point scale, and figure 1 shows that a majority of the sample responds either moderate or high job satisfaction (score 3 and 4). 
+
+```{r, warning=FALSE}
+happy_dist <- table(z$happy)/sum(table(z$happy))*100
+satjob_dist <- table(z$satjob)/sum(table(z$happy))*100
+
+par(mfrow=c(1,2)) 
+
+
+barplot(happy_dist, 
+        col=c("navyblue"),
+        xlab = "Overall life satisfaction categories",
+        legend = c("Life satisfaction"),
+        ylim = c(0, 80))
+
+barplot(satjob_dist, 
+        col=c("navyblue"),
+        xlab = "Job satisfaction categories",
+        legend = c("Job satisfcation"),
+        ylim = c(0, 80))
+
+```
+**Figure 1: Life- and Work-Satisfaction**
+
+## Average happiness in different survey years
+The GSS is conducted between 1972 and 2014. Due to year specific events, unintended differences in the implementation of the survey or trends in overall happiness, there can be year-specific differences. Figure 2 shows the average share of the population who report high-happiness across the survey years.
+
+``` {r, warning=FALSE}
+z$vhappy <- z$vhappy*100
+ggplot(z, aes(x=factor(year), y=vhappy)) + 
+  stat_summary(fun.y="mean", geom="point", col="Navyblue") + 
+  scale_x_discrete("Year", labels = c("1973" = "", "1975" = "", "1977" = "", "1980" = "", "1983" = "", "1985" = "", "1987" = "", "1987" = "", "1989" = "", "1991" = "", "1993" = "", "1996" = "", "2000" = "", "2004" = "", "2008" = "", "2012" = "")) +
+  scale_y_continuous("Percentage very happy") +
+  expand_limits(y=c(20,45)) + 
+  theme_bw() 
+```
+**Figure 2: Life-Satisfaction over Time**
+
+The figure shows that there is considerable variation between years, and a weak negative trend particularly between 1972 and 1983. It is not directly possible to disentangle what can be attributed to random noise and what is caused by structural changes, however, it signifies that it is pragmatic to control for survey year in a regression design to control for survey year fixed effects. 
+
+## Happiness across age
+Figure 3 investigates the relationship between reported happiness and age for college educated men and women.  
+
+
+```{r, warning=FALSE}
+ggplot() + 
+  stat_summary(data = z[z$sex == 1 & z$educat == 4,], aes(x=factor(age), y=vhappy), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  stat_summary(data = z[z$sex == 2 & z$educat == 4,], aes(x=factor(age), y=vhappy), 
+               fun.y="mean", geom="point", col="Red") + 
+  scale_x_discrete("Age") +
+  scale_y_continuous("Percentage very happy") +
+  expand_limits(y=c(20,60)) +
+  theme_bw()
+```
+**Figure 3: Happiness across Age (college educated men and women)**
+
+In the GSS there is no apparent structural relationship between the share of respondents who report being very happy and age. Further, college educated women have a slightly higher average reported happiness level relative to men (38% vs. 34%). 
+
+
+## Distribution of work-hours for full-time workers
+Work intensity is another variable of interest for the final research design. "Hours worked last week" is available across the full survey from 1972-2014. This is an imperfect proxy for respondents average working hours over a full year, but this unfortunately is not available. Figure 4 shows the frequency of hours worked last week for full-time workers. It is apparent that most respondents have worked around 40 hours a week, but also that there is considerable variance. 
+
+```{r, warning=FALSE}
+par(mfrow=c(1,1)) 
+satjob_dist <- table(z$satjob)/sum(table(z$happy))*100
+hist(z$hrs1[z$working_ft==1],
+     col=c("navyblue"),
+     border = "White",
+     xlab = "Hours worked last week (full-time employees)",
+     main = ""
+)   
+```
+**Figure 4: Work-hours of Full-Time Workers**
+
+# Gender
+
+In today's society the strive for gender equality often clashes with labour market realities and the persistence of traditional gender norms. Previous studies found that the reconcilability of having a family and pursuing a career is still difficult to achieve for women, while it is rather the norm for men [@hipp2015]. Thus, women who clash with traditional customs might face a “life happiness penalty” as shown in @bertrand2013.
+
+Figure 5 shows how reported happiness depends on labour-market affiliation for men (blue) and women (red) with a college degree. It shows that men report are substantially more likely to report being very happy when in full-time employment relative to part-time employment, which is not the case for women. Further, both men and women report high happiness levels when keeping house. Note, in the full sample only 35 college educated men are keeping house (there are 650 women) and when looking at all men, the average happiness score for men keeping house is only 24 %. 
+
+
+```{r, message = FALSE, warning=FALSE}
+z$workstatus <- NA
+z$workstatus[z$wrkstat==1] <- "Full-time work"
+z$workstatus[z$wrkstat==2] <- "Part-time work"
+z$workstatus[z$wrkstat==7] <- "Keeping house"
+
+
+ggplot() + 
+  stat_summary(data = z[z$sex == 2 & z$educat==4,], aes(x=factor(workstatus), y=vhappy), 
+               fun.y="mean", geom="point", col="Red") + 
+  stat_summary(data = z[z$sex == 1 & z$educat ==4,], aes(x=factor(workstatus), y=vhappy), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  expand_limits(y=c(20,60)) +
+  scale_x_discrete("Work status", limits=c("Full-time work", "Part-time work", 
+                "Keeping house")) +
+  scale_y_continuous("Percentage very happy") +
+  theme_bw()
+```
+**Figure 5: Happiness levels for college educated men and women depending on labour-market affiliation**
+
+Figure 6 shows the share of college educated men and women who report being very happy depending on whether they earn more than the 25th (*or 50th*) income percentile of college educated men in their age cohort. The graph suggests that gender only plays a role when people do not have a high income. For women (red) the probability to be very happy does not change with having a low income. Men (blue) on the other hand face a large happiness reduction when having a low income. This penalty is even more pronounced when setting the threshold at the 50th percentile where high-income men report even higher hapiness than women.  
+
+```{r, warning=FALSE}
+z = z[z$year >= 1977 & z$year < 2012,]
+
+z$income_status <- NA
+z$income_status[z$career==1] <- "High-income"
+z$income_status[z$career==0] <- "Low-income"
+
+z$career1 <- z$rinc > z$p50
+z$career1 <- as.numeric(z$career1)
+z$career1[is.na(z$career1)] <- 0
+
+
+ggplot() + 
+  stat_summary(data = z[z$sex == 1 & z$educat==4,], aes(x=factor(income_status), y=vhappy), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  stat_summary(data = z[z$sex == 2  & z$educat==4,], aes(x=factor(income_status), y=vhappy), 
+               fun.y="mean", geom="point", col="Red") + 
+  expand_limits(y=c(25,45)) +
+  scale_x_discrete("High- or low-income job") +
+  scale_y_continuous("Percentage very happy") +
+  ggtitle("A. Threshold 25th percentile") +
+  theme_bw()
+
+
+
+z$career1 <- z$rinc > z$p50
+z$career1 <- as.numeric(z$career1)
+z$career1[is.na(z$career1)] <- 0
+
+z$income_status1 <- NA
+z$income_status1[z$career1==1] <- "High-income"
+z$income_status1[z$career1==0] <- "Low-income"
+
+ggplot() + 
+  stat_summary(data = z[z$sex == 1 & z$educat==4,], aes(x=factor(income_status1), y=vhappy), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  stat_summary(data = z[z$sex == 2  & z$educat==4,], aes(x=factor(income_status1), y=vhappy), 
+               fun.y="mean", geom="point", col="Red") + 
+  expand_limits(y=c(25,45)) +
+  scale_x_discrete("High- or low-income job") +
+  scale_y_continuous("Percentage very happy") +
+  ggtitle("B. Threshold 50th percentile") +
+  theme_bw()
+```
+**Figure 6: Happiness depending on income status**
+
+Figure 7 further differentiates between the four possible combinations of having a family (married and children) or not and having a high- or low-income job. Both college educated men and women report substantially higher happiness levels when having a family. When not having a family, higher income improves life satisfaction for both genders although the increase is larger for men. Gender differences become more pronounced once people have a family. With a family but without a high-income job women are the happiest, while men are considerably less happy, compared to having a career and a family. Thus, the "utility maximizing" equilibrium for married couples with kids still is still the male bread-winner model, which conflicts with more progressive gender norms and welfare state ambitions to include both genders equally into the labor market.
+
+```{r, warning=FALSE}
+z$meanhap <- NA
+z$meanhap[z$family==0 & z$career==0] <- "No career, no family"
+z$meanhap[z$family==0 & z$career==1] <- "Career, no family"
+z$meanhap[z$family==1 & z$career==0] <- "No career, family"
+z$meanhap[z$family==1 & z$career==1] <- "Career, family"
+
+ggplot() + 
+  stat_summary(data = z[z$sex == 1 & z$educat==4 ,], aes(x=factor(meanhap), y=vhappy), 
+               fun.y="mean", geom="point", col="Navyblue") +
+  stat_summary(data = z[z$sex == 2 & z$educat==4,], aes(x=factor(meanhap), y=vhappy), 
+             fun.y="mean", geom="point", col="Red") +
+  scale_x_discrete("Family-work combination", limits=c("No career, no family", 
+              "Career, no family", "No career, family", "Career, family")) +
+  scale_y_continuous("Percentage very happy") +
+  theme_bw()
+
+```
+**Figure 7: Happiness depending on having a high income and a family**
+
+## Interaction effects of being married and having a high-income job for working men and women
+
+The correlations shown in figure 5 - 7 are also dependend on omitted factors. To control for some of the confounding factors that are observable, we also replicate a linear probability model by Bertrand (2013) which estimates the interaction effect of being married and having a high-paid job (career) on the binary variable being very happy. While @bertrand2013 limits her analysis to college-educated women who are working, we also compare these findings to college educated men. The model controls for age, age-squared, the survey year, race and decade of birth.
+
+Figure 8 shows the effect of the interaction term on the probability of being very happy. First, the interaction effect is significant and positive for both genders regardless the income level. The left panel shows that the effect of marriage on life satisfaction is stronger for women who have a low-income job or who do housework compared to women who have a high-paying job. Although this difference is not significant at the 5% level, the job-income effect is much stronger than for men, where having a high-paying job or not hardly influences the effect of marriage on happiness. 
+
+Figure 9 repeats the analysis but replaces marriage in the interaction term with the binary family variable. The results are roughly similar, although differences between women with low- and high- income jobs are less pronounced. This is interesting because one would expect that the reconsilability of career and private life would be easier for married women without children than for women with a family, because care responsibilities are usually not symmetrically distributed and to take care of a family might give women with low or no income higher life satisfaction than having a low income but no kids.
+
+```{r}
+
+z$working_ft <- as.numeric(z$working_ft)
+z$working_pt <- as.numeric(z$working_pt)
+
+M1a <- lm(vhappy ~ career*married + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+         data = subset(z, sex==2 & educat == 4))
+M2a <- lm(vhappy ~ career*married + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+          data = subset(z, sex==1 & educat == 4))
+
+# compare men and women
+
+require("interplot")
+require("gridExtra")
+
+interM1 <- interplot(M1a, var1 = "married", var2 = "career") +
+  ggtitle("Working women") +
+  xlab("career") + 
+  ylab("effect of marriage on life satisfaction") + 
+  expand_limits(y=c(0.05,0.3)) +
+  theme_bw()
+
+interM2 <- interplot(M2a, var1 = "married", var2 = "career") +
+  ggtitle("Working men") +
+  xlab("career") + 
+  expand_limits(y=c(0.05,0.3)) +
+  theme_bw()
+
+grid.arrange(interM1, interM2, ncol = 2) 
+
+```
+**Figure 8: Interaction effects of being married and high-income job on life satisfaction**
+
+```{r}
+
+M3 <- lm(vhappy ~ career*family + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+         data = subset(z, sex==2 & educat == 4))
+M4 <- lm(vhappy ~ career*family + age + agesq + as.factor(year) + as.factor(race) + as.factor(bdec), 
+         data = subset(z, sex==1 & educat == 4))
+
+# Compare men and women (Career-Family interaction)
+
+interM3 <- interplot(M3, var1 = "family", var2 = "career") +
+  ggtitle("Working women") +
+  xlab("career") + 
+  ylab("effect of family on life satisfaction") + 
+  expand_limits(y=c(0.05,0.3)) +
+  theme_bw()
+
+interM4 <- interplot(M4, var1 = "family", var2 = "career") +
+  ggtitle("Working men") +
+  xlab("career") + 
+  expand_limits(y=c(0.05,0.3)) +
+  theme_bw()
+
+grid.arrange(interM3, interM4, ncol = 2) 
+```
+**Figure 9: Interaction effects of family-career for working men and women**
+
+# Preliminary Conclusions
+
+The preliminary analyses point to the conclusion that variation of life satisfaction based on labour market affiliations and gender exist but that the construction of models which are able to caputre this variation adequatly is challenging due to the multitude of potential omitted factors. Our descriptive results suggest that gender differences exist for critical happiness determinants such as having a family or not as well as job-income. This supports our initial assumption of differences in reconcilability of a career pursuit and a happy life. In a next step we would like to investigate in more detail how the intensity of work influences happiness and whether being satisfied with your job and overall hapiness face a potential trade-off. The centrality of work in our life and the importance of the reconcilability debate in the on-going strive for gender equality underlines the relevance of the presented analysis and justifies the assumption that a further specification will yield insightful and robust results.
+
+
+# Software and packages used for the analysis
+The analysis is done in R [@CiteR] with the use of the following packages: "ggplot2" [@R-ggplot2], "repmis" [@R-repmis], "plyr" [@R-plyr], "dplyr" [@R-dplyr], "MASS" [@R-MASS], "Hmisc" [@R-Hmisc], "interplot" [@R-interplot], "gridExtra" [@R-gridExtra], "car" [@R-car], "foreign" [@R-foreign], "gmodels" [@R-gmodels], "quantmod" [@R-quantmod] and "reshape" [@R-reshape].
+
+# References
