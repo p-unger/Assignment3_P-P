@@ -1,6 +1,6 @@
 ---
 title: "Pair Assignment 3"
-author: "Philip & Philipp"
+author: "Philip Unger & Philipp Ständer"
 date: "14 Apr 2016"
 header-includes:
     - \usepackage{setspace}\doublespacing
@@ -20,8 +20,8 @@ bibliography:
 PackagesUsed <- c("ggplot2", "repmis", "plyr", "dplyr", "MASS", "Hmisc", "interplot", "gridExtra", "repmis", "car", "reshape", "gmodels", "quantmod", "foreign")
 
 # Set working directory
-#setwd("~/Documents/CDA/collaborative_projects/Assignment3_P-P") # Unger
-setwd("~/R_data/Assignment3_P-P") # Staender
+setwd("~/Documents/CDA/collaborative_projects/Assignment3_P-P") # Unger
+# setwd("~/R_data/Assignment3_P-P") # Staender
 
 # Load PackagesUsed and create .bib BibTeX file
 repmis::LoadandCite(PackagesUsed, file = "packages.bib", install = FALSE)
@@ -196,7 +196,7 @@ Figure 7 differentiates between the four possible combinations of having a famil
 
 These descriptive results suggest that on average married couples with kids are  best-off when following a male bread-winner model, which conflicts with more progressive gender norms. Note, however, that the results could be driven by omitted factors such as assymetric total family income or age across the family constellations which also could affect subjective well-being. In our final analysis we seek to identify the factors that are driving these results.
 
-```{r, fig7,warning=FALSE,echo=FALSE,Cache=TRUE,fig.cap="Happiness and family constellation"}
+```{r, fig7,warning=FALSE,echo=FALSE,Cache=TRUE,fig.cap="Happiness and family constellation (college educated subsample)"}
 z$meanhap <- NA
 z$meanhap[z$family==0 & z$career==0] <- "Low-inc., no family"
 z$meanhap[z$family==0 & z$career==1] <- "High-inc., no family"
