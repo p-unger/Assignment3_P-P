@@ -36,9 +36,6 @@ if(!exists("z.df" )) {
 }
 ```
 
-# To do
-- Rewrite: Philipp - read quickly 
-
 # Motivation
 For the final project we wish to address the research question: *"Are career pursuits reconcilable with a happy life?"*. Our hypothesis is that under some conditions, pursuing a career makes it difficult to reconcile high work intensity with a family or a social life, which could decrease overall life-satisfaction. The link could be particularly pronounced for women. First, gender norms may impose a happiness penalty, if pursuing a career clashes with  gender roles in the society. Second, men are more likely to have a partner who work fewer hours, which could ease the tension between a career and family life.
 
@@ -232,9 +229,6 @@ M2a <- lm(vhappy ~ career*married + age + agesq + as.factor(year) + as.factor(ra
           data = subset(z, sex==1 & educat == 4))
 
 # compare men and women
-
-require("interplot")
-require("gridExtra")
 
 interM1 <- interplot(M1a, var1 = "married", var2 = "career") +
   ggtitle("Working women") +
