@@ -2,6 +2,9 @@
 #        Download and import Bertrand (2013) files into R      #
 ################################################################
 
+# The coding is inspired by anthony joseph damico's guide to download the General Social Survey
+# (see GSS_data_downloader.R).
+
 # set your working directory.
 # setwd("~/R_data/GSS")
 
@@ -11,8 +14,7 @@ options( digits = 8 )
 # Loading packages
 library(foreign) # load foreign package (converts data files into R)
 
-# create new character variables containing the full filepath of the file on norc's website
-# that needs to be downloaded and imported into r for analysis
+# create new character variables containing the full filepath 
 CPS.location <-	"https://www.aeaweb.org/aer/data/may2013/P2013_4384_data.zip"
 
 
@@ -42,11 +44,11 @@ fn <-
     overwrite = T
   )
 
-# print the temporary location of the spss (.sav) file to the screen
+# print the temporary location of the stata (.dta) file to the screen
 print( fn[ grep( "dta$" , fn ) ] )
 
 
-# convert the spss (.sav) file saved on the local disk (at 'fn') into an r data frame
+# convert the stata (.dta) file saved on the local disk (at 'fn') into an r data frame
 CPS.df <- 
   read.dta( 
     fn[ grep( "GSS_aer.dta" , fn ) ] , 
@@ -72,8 +74,6 @@ gc()
 
 
 # save the cross-sectional cumulative gss r data frame inside an r data file (.rda)
-save( CPS.df , file = "CPS_Bertrand.rda" )
+save( CPS.df , file = "data/CPS_Bertrand.rda" )
 
 rm(CPS.location, fn, td, tf)
-
-# summary(CPS.df$year)

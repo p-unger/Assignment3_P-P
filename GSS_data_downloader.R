@@ -12,7 +12,7 @@
 
 
 # set your working directory.
-# setwd("~/R_data/GSS")
+# setwd("~/R_data/GSS") # Ständer
 
 # set the number of digits shown in all output
 options( digits = 8 )
@@ -95,6 +95,6 @@ gc()
 rm(fn, GSS.CS.file.location, td, tf)
 
 # save the cross-sectional cumulative gss r data frame inside an r data file (.rda)
-save( GSS.CS.df , file = "GSS.CS.rda")
+save( GSS.CS.df , file = "data/GSS.CS.rda")
 
 

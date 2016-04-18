@@ -1,6 +1,6 @@
-############################
-# Data Set Preperation     #
-############################
+############################################
+# Final dataset: Combine and transform     #
+############################################
 
 # set your working directory.
 #setwd("~/R_data/Assignment3_P-P") # Staender
@@ -15,7 +15,7 @@ library(plyr)
 library(Hmisc)
 
 # Load GSS-data file
-# load( "GSS.CS.rda" )
+# load( "data/GSS.CS.rda" )
 
 # copy to a different object
 z <- GSS.CS.df
@@ -46,7 +46,6 @@ z$nevermarried <- marital==5
 
 # generate no-kids dummy
 z$nokid <- childs==0
-
 
 # generate other variables
 z$agesq <- age*age
@@ -375,7 +374,6 @@ z <- subset(z, z$working==1 | z$keepinghouse == 1)
 # Keep if age>=25 & age<=54
 z <- subset(z, z$age>=25 & z$age <= 54)
 
-
 # One of these are redundant !!!
 z$def_linc <- log(z$def_inc)
 z$def_lrinc <- log(z$def_rinc)
@@ -403,14 +401,14 @@ z$cohortb[z$cohort<=3] <- 3
 z$cohortb[z$cohort==4] <- 4
 z$cohortb[z$cohort>=5] <- 5
 
-#################################################
-##merge men's earnings pctile from the March CPS
-#################################################
+##################################################
+# merge men's earnings pctile from the March CPS #
+##################################################
 
 z$age_g <- trunc(z$age*2/10)
 table(z$age_g)
 
-##merge p25 from Bertrand dataset (CPS_Bertrand.rda)
+# merge p25 and p50 from Bertrand data frame (must be open)
 
 vars <- c("p25", "p50", "age_g", "educat", "year")
 df.p25 <- CPS.df[vars]
@@ -426,23 +424,6 @@ rm(CPS.df, d, df.p25, temp, vars)
 z$career <- z$rinc > z$p25
 z$career <- as.numeric(z$career)
 z$career[is.na(z$career)] <- 0
-
-
-#Some crazy weighting going on here
-##################################
-#z$n <- 1
-#z$n[sex!=2 & educat!=4] <- NA
-
-#egen sn=sum(n),by(cohortb)
-#egen sage=sum(n),by(age cohortb)
-#gen w=sage/sn
-#gen wcohort4=w
-#replace wcohort4=. if cohortb~=4
-#egen weightcohort4=mean(wcohort4),by(age)
-#gen snw=sn*weightcohort4
-#gen weight=snw/sage
-##################################
-
 
 ## Generate Interaction Variables
 
@@ -528,5 +509,5 @@ z$d_sex <- as.numeric(z$d_sex)
 # z = z[z$year >= 1977 & z$year < 2012,]
 
 # Save Dataset for Analysis !!
-save( z , file = "data_final.rda" )
+save( z , file = "data/data_final.rda" )
 
