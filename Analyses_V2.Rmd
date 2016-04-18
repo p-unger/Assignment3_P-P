@@ -67,7 +67,8 @@ The scope of this paper is to combine data from the three above mentioned source
 Two of the central variables for our research is reported happiness and job-satisfaction, which are based on survey respondents' answers to the two questions: "Taken all together, how would you say things are these days?" and "On the whole, how satisfied are you with the work you do?". Figure 1 shows the distribution of answers to the two questions. The former is measured on a three point scale (higher is better), of which around 60 % of the sample respond a middle happiness level. The latter is measured on a four point scale, and figure 1 shows that a majority of the sample responds either moderate or high job satisfaction (score 3 and 4). 
 
 
-```{r, warning=FALSE, echo=FALSE, fig.cap="Life- and Work-Satisfaction"}
+```{r, fig1,fig.height=4,warning=FALSE,echo=FALSE,fig.cap="Life- and Work-Satisfaction"}
+
 happy_dist <- table(z$happy)/sum(table(z$happy))*100
 satjob_dist <- table(z$satjob)/sum(table(z$happy))*100
 
@@ -78,7 +79,7 @@ barplot(happy_dist,
         col=c("navyblue"),
         xlab = "Overall life satisfaction categories",
         legend = c("Life satisfaction"),
-        ylim = c(0, 80))
+        ylim = c(0, 80))  
 
 barplot(satjob_dist, 
         col=c("navyblue"),
@@ -86,13 +87,12 @@ barplot(satjob_dist,
         legend = c("Job satisfcation"),
         ylim = c(0, 80))
 ```
-\linebreak 
 
 
 ## Average happiness in different survey years
 The GSS is conducted between 1972 and 2014. Due to year specific events, unintended differences in the implementation of the survey or trends in overall happiness, there can be year-specific differences. Figure 2 shows the average share of the population who report high-happiness across the survey years.
 
-``` {r, warning=FALSE, echo=FALSE}
+``` {r, fig2,warning=FALSE,echo=FALSE,fig.cap="Life-Satisfaction over Time"}
 z$vhappy <- z$vhappy*100
 ggplot(z, aes(x=factor(year), y=vhappy)) + 
   stat_summary(fun.y="mean", geom="point", col="Navyblue") + 
@@ -109,7 +109,7 @@ The figure shows that there is considerable variation between years, and a weak 
 Figure 3 investigates the relationship between reported happiness and age for college educated men and women.  
 
 
-```{r, warning=FALSE, echo=FALSE}
+```{r, fig3,warning=FALSE,echo=FALSE,fig.cap="Happiness across Age (college educated men and women)"}
 ggplot() + 
   stat_summary(data = z[z$sex == 1 & z$educat == 4,], aes(x=factor(age), y=vhappy), 
                fun.y="mean", geom="point", col="Navyblue") + 
@@ -128,7 +128,7 @@ In the GSS there is no apparent structural relationship between the share of res
 ## Distribution of work-hours for full-time workers
 Work intensity is another variable of interest for the final research design. "Hours worked last week" is available across the full survey from 1972-2014. This is an imperfect proxy for respondents average working hours over a full year, but this unfortunately is not available. Figure 4 shows the frequency of hours worked last week for full-time workers. It is apparent that most respondents have worked around 40 hours a week, but also that there is considerable variance. 
 
-```{r, warning=FALSE, echo=FALSE}
+```{r, fig4,warning=FALSE,echo=FALSE,fig.cap="Work-hours of Full-Time Workers"}
 par(mfrow=c(1,1)) 
 satjob_dist <- table(z$satjob)/sum(table(z$happy))*100
 hist(z$hrs1[z$working_ft==1],
@@ -138,7 +138,7 @@ hist(z$hrs1[z$working_ft==1],
      main = ""
 )   
 ```
-  **Figure 4: Work-hours of Full-Time Workers**
+**Figure 4: Work-hours of Full-Time Workers**
 
 # Gender
 
