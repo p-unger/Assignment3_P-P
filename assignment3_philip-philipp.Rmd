@@ -8,6 +8,8 @@ output:
   pdf_document:
     number_sections: yes
     fig_caption: yes
+    fig_height: 4
+    fig_width: 6
 bibliography: 
 - main.bib
 - packages.bib
@@ -52,24 +54,24 @@ The scope of this paper is to combine data from the three above mentioned source
 Two of the central variables for our research is reported happiness and job-satisfaction, which are based on the two questions: *"Taken all together, how would you say things are these days?"* and *"On the whole, how satisfied are you with the work you do?"*. Figure 1 shows the distribution of answers to the two questions. The former is measured on a three point scale (higher is better), of which around 60 % of the sample report a middle happiness level. The latter is measured on a four point scale, and Figure 1 shows that a majority of the sample report either moderate or high job satisfaction (score 3 and 4). 
 
 
-```{r, fig1,fig.height=4,warning=FALSE,echo=FALSE,fig.cap="Life- and Work-Satisfaction"}
+```{r, fig1,warning=FALSE,echo=FALSE,fig.cap="Distribution of reported happiness and job-satisfaction"}
 
 happy_dist <- table(z$happy)/sum(table(z$happy))*100
 satjob_dist <- table(z$satjob)/sum(table(z$happy))*100
 
 par(mfrow=c(1,2)) 
 
-
 barplot(happy_dist, 
         col=c("navyblue"),
-        xlab = "Overall life satisfaction categories",
-        legend = c("Life satisfaction"),
+        xlab = "Reported happiness",
+        ylab = "Frequency (percent)",
+        legend = c("Happiness"),
         ylim = c(0, 80))  
 
 barplot(satjob_dist, 
         col=c("navyblue"),
-        xlab = "Job satisfaction categories",
-        legend = c("Job satisfcation"),
+        xlab = "Reported job-satisfaction",
+        legend = c("Job-satisfcation"),
         ylim = c(0, 80))
 ```
 
@@ -77,7 +79,7 @@ barplot(satjob_dist,
 ## Average happiness in different survey years
 The GSS is conducted between 1972 and 2014. Due to year specific events, unintended differences in the implementation of the survey or trends in overall happiness, there can be year-specific differences. Figure 2 shows the average share of the population who reports to be very happy (score of 3) across the survey years.
 
-``` {r, fig2,warning=FALSE,echo=FALSE,fig.cap="Life-Satisfaction over Time"}
+``` {r fig2,warning=FALSE,echo=FALSE,fig.cap="Average reported happiness over survey year, 1972-2014"}
 z$vhappy <- z$vhappy*100
 ggplot(z, aes(x=factor(year), y=vhappy)) + 
   stat_summary(fun.y="mean", geom="point", col="Navyblue") + 
@@ -93,7 +95,7 @@ Figure 2 shows that there is considerable variation between years, and a weak ne
 Figure 3 investigates the relationship between reported happiness and age for college educated men and women.  
 
 
-```{r, fig3,warning=FALSE,echo=FALSE,fig.cap="Happiness across age (college educated men and women)"}
+```{r, fig3,warning=FALSE,echo=FALSE,fig.cap="Happiness and age (college educated men and women)"}
 ggplot() + 
   stat_summary(data = z[z$sex == 1 & z$educat == 4,], aes(x=factor(age), y=vhappy), 
                fun.y="mean", geom="point", col="Navyblue") + 
@@ -111,7 +113,7 @@ In the GSS there is no apparent structural relationship between the share of res
 ## Distribution of work-hours for full-time workers
 Work intensity is another variable of interest for the final research design. "Hours worked last week" is available across the full survey from 1972-2014. This is an imperfect proxy for respondents average working hours over a full year, which unfortunately is not available. Figure 4 shows the frequency of hours worked last week for full-time workers. It is apparent that most respondents have worked around 40 hours a week, but also that there is considerable variance. 
 
-```{r, fig4,warning=FALSE,echo=FALSE,fig.cap="Work-hours of Full-Time Workers"}
+```{r, fig4,fig.heigth=5,warning=FALSE,echo=FALSE,fig.cap="Histogram of hours worked last week for full-time workers"}
 par(mfrow=c(1,1)) 
 satjob_dist <- table(z$satjob)/sum(table(z$happy))*100
 hist(z$hrs1[z$working_ft==1],
@@ -129,7 +131,8 @@ In today's society the strive for gender equality often clashes with labour mark
 Figure 5 shows how reported happiness depends on labour-market affiliation for men (blue) and women (red) with a college degree. It shows that men are substantially more likely to report being very happy when in full-time employment relative to part-time employment, which is not the case for women. Further, both men and women report high happiness levels when keeping house. Note, in the full sample only 35 college educated men are keeping house (there are 650 women) and when looking at all men, the average share who reports being very happy while keeping house is only 24 %. 
 
 
-```{r, message = FALSE, warning=FALSE, echo=FALSE}
+```{r, fig5,fig.heigth=5,warning=FALSE,echo=FALSE,fig.cap="Happiness and labour-market affiliation (college educated men and women)"}
+
 z$workstatus <- NA
 z$workstatus[z$wrkstat==1] <- "Full-time work"
 z$workstatus[z$wrkstat==2] <- "Part-time work"
@@ -137,88 +140,91 @@ z$workstatus[z$wrkstat==7] <- "Keeping house"
 
 
 ggplot() + 
-  stat_summary(data = z[z$sex == 2 & z$educat==4,], aes(x=factor(workstatus), y=vhappy), 
+  stat_summary(data = z[z$sex == 2 & z$educat==4,], aes(x=factor(workstatus), y=vhappyb), 
                fun.y="mean", geom="point", col="Red") + 
-  stat_summary(data = z[z$sex == 1 & z$educat ==4,], aes(x=factor(workstatus), y=vhappy), 
+  stat_summary(data = z[z$sex == 1 & z$educat ==4,], aes(x=factor(workstatus), y=vhappyb), 
                fun.y="mean", geom="point", col="Navyblue") + 
-  expand_limits(y=c(20,60)) +
   scale_x_discrete("Work status", limits=c("Full-time work", "Part-time work", 
                 "Keeping house")) +
+  expand_limits(y=c(20,60)) +
   scale_y_continuous("Percentage very happy") +
   theme_bw()
 ```
 
 Figure 6 shows the share of college educated men and women who report being very happy depending on whether they earn more than the 25th (panel A) or 50th (panel B) income percentile of college educated men in their age cohort. The graph suggests that women have the same propensity to be very happe regardless of whether they are high earners or not, whereas the difference is substantial for men. The difference for men is even more pronounced when  the threshold is set at the 50th percentile.
 
-```{r, warning=FALSE, echo=FALSE}
+```{r, fig6,warning=FALSE,echo=FALSE,fig.cap="Happiness and income level"}
+
 z = z[z$year >= 1977 & z$year < 2012,]
 
-z$income_status <- NA
 z$income_status[z$career==1] <- "High-income"
 z$income_status[z$career==0] <- "Low-income"
 
-ggplot() + 
-  stat_summary(data = z[z$sex == 1 & z$educat==4,], aes(x=factor(income_status), y=vhappy), 
-               fun.y="mean", geom="point", col="Navyblue") + 
-  stat_summary(data = z[z$sex == 2  & z$educat==4,], aes(x=factor(income_status), y=vhappy), 
-               fun.y="mean", geom="point", col="Red") + 
-  expand_limits(y=c(25,45)) +
-  scale_x_discrete("High- or low-income job") +
-  scale_y_continuous("Percentage very happy") +
-  ggtitle("A. Threshold 25th percentile") +
-  theme_bw()
-
+  # Following Bertrand (2013), respondents who report no income (Not applicable) is coded as
+  # having low-income. Thus there are no N/A's in the career variables (see also below). 
 
 
 z$career1 <- z$rinc > z$p50
 z$career1 <- as.numeric(z$career1)
-z$career1[is.na(z$career1)] <- 0
+z$career1[is.na(z$career1)] <- 0 
 
-z$income_status1 <- NA
 z$income_status1[z$career1==1] <- "High-income"
 z$income_status1[z$career1==0] <- "Low-income"
 
-ggplot() + 
-  stat_summary(data = z[z$sex == 1 & z$educat==4,], aes(x=factor(income_status1), y=vhappy), 
+plot1 <- ggplot() + 
+  stat_summary(data = z[z$sex == 1 & z$educat==4,], aes(x=factor(income_status), y=vhappyb), 
                fun.y="mean", geom="point", col="Navyblue") + 
-  stat_summary(data = z[z$sex == 2  & z$educat==4,], aes(x=factor(income_status1), y=vhappy), 
+  stat_summary(data = z[z$sex == 2  & z$educat==4,], aes(x=factor(income_status), y=vhappyb), 
                fun.y="mean", geom="point", col="Red") + 
   expand_limits(y=c(25,45)) +
-  scale_x_discrete("High- or low-income job") +
+  scale_x_discrete("High- or low-income job", limits=c("High-income", "Low-income")) +
   scale_y_continuous("Percentage very happy") +
-  ggtitle("B. Threshold 50th percentile") +
+  ggtitle("A. Threshold: 25th percentile") +
   theme_bw()
+
+
+plot2 <- ggplot() + 
+  stat_summary(data = z[z$sex == 1 & z$educat==4,], aes(x=factor(income_status1), y=vhappyb), 
+               fun.y="mean", geom="point", col="Navyblue") + 
+  stat_summary(data = z[z$sex == 2  & z$educat==4,], aes(x=factor(income_status1), y=vhappyb),
+               fun.y="mean", geom="point", col="Red") + 
+  expand_limits(y=c(25,45)) +
+  scale_x_discrete("High- or low-income job", limits=c("High-income", "Low-income")) +
+  scale_y_continuous("") +
+  ggtitle("B. Threshold: 50th percentile") +
+  theme_bw()
+grid.arrange(plot1, plot2, ncol=2)
 ```
+
 
 Figure 7 differentiates between the four possible combinations of having a family (married and children) and having a high- or low-income job (defined as earning more than the 25th income percentile of college educated men in the respondent's cohort). Both college educated men and women report substantially higher happiness levels when having a family. When not having a family, higher income improves life satisfaction for both genders although the increase is larger for men. Gender differences become more pronounced when people have a family. With a family, women are happier when they are not in a high-income job, whereas the opposite is true for men. These descriptive results suggest that on average married couples with kids are  best-off when following a male bread-winner model, which conflicts with more progressive gender norms. Note, however, that the results could be driven by omitted factors such as assymetric total family income or age across the family constellations which also could affect subjective well-being. In our final analysis we seek to identify the factors that are driving these results.
 
-```{r, warning=FALSE, echo=FALSE}
+```{r, fig7,warning=FALSE,echo=FALSE,Cache=TRUE,fig.cap="Happiness and family constellation"}
 z$meanhap <- NA
-z$meanhap[z$family==0 & z$career1==0] <- "No career, no family"
-z$meanhap[z$family==0 & z$career1==1] <- "Career, no family"
-z$meanhap[z$family==1 & z$career1==0] <- "No career, family"
-z$meanhap[z$family==1 & z$career1==1] <- "Career, family"
+z$meanhap[z$family==0 & z$career==0] <- "Low-inc., no family"
+z$meanhap[z$family==0 & z$career==1] <- "High-inc., no family"
+z$meanhap[z$family==1 & z$career==0] <- "Low-inc., family"
+z$meanhap[z$family==1 & z$career==1] <- "High-inc., family"
 
 ggplot() + 
   stat_summary(data = z[z$sex == 1 & z$educat==4 ,], aes(x=factor(meanhap), y=vhappy), 
                fun.y="mean", geom="point", col="Navyblue") +
   stat_summary(data = z[z$sex == 2 & z$educat==4,], aes(x=factor(meanhap), y=vhappy), 
              fun.y="mean", geom="point", col="Red") +
-  scale_x_discrete("Family-work combination", limits=c("No career, no family", 
-              "Career, no family", "No career, family", "Career, family")) +
+  scale_x_discrete("Family-work combination", limits=c("Low-inc., no family", 
+              "High-inc., no family", "Low-inc., family", "High-inc., family")) +
   scale_y_continuous("Percentage very happy") +
   theme_bw()
-
 ```
 
-## Interaction effects of being married and having a high-income job for working men and women
+## Interaction effects of marriage and job income for working men and women
 
-The correlations shown in Figure 5-7 are influenced by omitted factors. To control for some of the confounding factors that are observable, we replicate a linear probability model by Bertrand (2013) which estimates the interaction effect of being married and having a high-paid job (career) on the binary variable being very happy. While @bertrand2013 limits her analysis to college-educated women who are working, we also compare these findings to college educated men. The model controls for age, age-squared, the survey year, race and decade of birth.
+The correlations shown in Figure 5-7 are influenced by omitted factors. To control for some of the confounding factors that are observable, we replicate a linear probability model by Bertrand (2013) and estimate the effect of marriage and the interaction effect of marriage and having a high-paid job (career) on the binary variable of being very happy. While @bertrand2013 limits her analysis to college-educated women who are working, we also compare these findings to college educated men. The model controls for age, age-squared, the survey year, race and decade of birth.
 
-Figure 8 shows the effect of the interaction term on the probability of being very happy. First, the interaction effect is significant and positive for both genders of respondents'  income level. The left panel shows that the effect of marriage on reported happiness is stronger for women who do not have a high-income job compared to women who do. Although this difference is not significant at the 5% level, the job-income effect is stronger than for men, where having a high-paying job or not hardly influences the effect of marriage on happiness. 
+Figure 8 shows the effect of marriage on the probability of being very happy for college educated men and women depending on job income. First, the effect of marriage is positive and significantly different from zero regardless of respondents' income level. The left panel shows that the effect of marriage on reported happiness is stronger for women who do not have a high-income job compared to women who do, as the interaction term between marriage and high job income is -0.07. Although this difference only is significant at the 10% level, job income seem to be much more important for the happiness of women compared to men, where having a high-paying job or not hardly influences the effect of marriage on happiness. 
 
 
-```{r, warning=FALSE, echo=FALSE}
+```{r, fig8,warning=FALSE,echo=FALSE,Cache=TRUE,fig.cap="Interaction effects of marriage and job income on life satisfaction"}
 
 z$working_ft <- as.numeric(z$working_ft)
 z$working_pt <- as.numeric(z$working_pt)
@@ -232,14 +238,14 @@ M2a <- lm(vhappy ~ career*married + age + agesq + as.factor(year) + as.factor(ra
 
 interM1 <- interplot(M1a, var1 = "married", var2 = "career") +
   ggtitle("Working women") +
-  xlab("career") + 
+  xlab("1 = High-income") + 
   ylab("effect of marriage on life satisfaction") + 
   expand_limits(y=c(0.05,0.3)) +
   theme_bw()
 
 interM2 <- interplot(M2a, var1 = "married", var2 = "career") +
   ggtitle("Working men") +
-  xlab("career") + 
+  xlab("1 = High-income") + 
   expand_limits(y=c(0.05,0.3)) +
   theme_bw()
 
