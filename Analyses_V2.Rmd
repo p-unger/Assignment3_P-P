@@ -46,13 +46,13 @@ if(!exists("z.df" )) {
 - Cut words (currently above 1800)
 
 # Motivation
-The research question we wish to pursue for the final project is: *"Are career pursuits reconcilable with a happy life?"*. Our hypothesis is that under some conditions, pursuing a career makes it difficult to reconcile high work intensity with a family or a social life, which could decrease overall life-satisfaction. The link could be particularly pronounced for women. First, gender norms may impose a happiness penalty, if pursuing a career clashes with dominent gender roles in the society. Second, when both men and women adhere to gender norms and follow a single bread-winner model they may benefit additionally to the norm reward from fewer tensions between career pursuits and family life as genders each specialize on one domaine [@becker1965; -@becker1985]. 
+The research question we wish to pursue for the final project is: *"Are career pursuits reconcilable with a happy life?"*. Our hypothesis is that under some conditions, pursuing a career makes it difficult to reconcile high work intensity with a family or a social life, which could decrease overall life-satisfaction. The link could be particularly pronounced for women. First, gender norms may impose a happiness penalty, if pursuing a career clashes with dominent gender roles in the society. Second, when both men and women specialize on one domaine and follow a single bread-winner model they may benefit from fewer tensions between career pursuits and family life [@becker1965; -@becker1985]. 
 
 To analyse the question we are using three data-sources. The General Social Survey from the United States, which is ongoing since 1972 and ask survey respondents questions regarding well-being in different dimensions (overall, work, family), demographic characteristics, job-affiliation, income and more. Further, we use the Personal Consumption Expenditure index from the Federal Reserve Bank of St. Louis to adjust income variables for inflation. Last, we use data from the Current Population Survey on income percentiles in age and educational groups, which is collected from the replication file of @bertrand2013.[^Footnote] 
 
-[^Footnote]: Bertrand only includes the income percentiles between 1977-2010, and at a later stage we intend to calculate the income percentiles directly from the CPS]. 
+[^Footnote]: Bertrand only includes the income percentiles between 1977-2010, and at a later stage we intend to calculate the income percentiles directly from the CPS. 
 
-Based on the available data-sources there are considerable methodological challenges, of which we will elaborate on the most pronounced. First, defining the group of individuals who pursue a career is  problematic. In the literature, career pursuits have been proxied by income thresholds (**Goldin, 2004**; @bertrand2013]. However, these measures neglect that individuals can have career ambitions in low-income jobs, and not all high earners are pursuing a career. In this paper we also deploy an income-threshold variable, but interpret it simply as indicating high-income workers. Second, when analysing sub-populations of the General Social Survey, we face issues of small sample sizes. The GSS has surveyed around 60.000 individuals between 1972 and 2014, but when comparing individuals with specific educational attainment, labour-force participation, family status, gender etc., the sample size can be reduced to a few hundred observations. Third, there is a large literature on whether it is possible to draw inference on subjective well-being measures, see for instance Bertrand @bertrand2013 or @kahneman2006. 
+Based on the available data-sources there are considerable methodological challenges, of which we will elaborate on the most pronounced. First, defining the group of individuals who pursue a career is  problematic. In the literature, career pursuits have been proxied by income thresholds [@goldin2004; @bertrand2013]. However, these measures neglect that individuals can have career ambitions in low-income jobs, and not all high earners are pursuing a career. In this paper we also deploy an income-threshold variable, but interpret it simply as indicating high-income workers. Second, when analysing sub-populations of the General Social Survey, we face issues of small sample sizes. The GSS has surveyed around 60.000 individuals between 1972 and 2014, but when comparing individuals with specific educational attainment, labour-force participation, family status, gender etc., the sample size can be reduced to a few hundred observations. Third, there is a large literature on whether it is possible to draw inference on subjective well-being measures, see for instance @bertrand2013 or @kahneman2006. 
 
 The scope of this paper is to combine data from the three above mentioned sources and present descriptive statistics and correlations that are of importance with respect to our research question. All steps are done dynamically, such that they are easily reproducible.
 
@@ -81,9 +81,8 @@ barplot(satjob_dist,
         xlab = "Job satisfaction categories",
         legend = c("Job satisfcation"),
         ylim = c(0, 80))
-
 ```
-**Figure 1: Life- and Work-Satisfaction**
+\linebreak[] **Figure 1: Life- and Work-Satisfaction**
 
 ## Average happiness in different survey years
 The GSS is conducted between 1972 and 2014. Due to year specific events, unintended differences in the implementation of the survey or trends in overall happiness, there can be year-specific differences. Figure 2 shows the average share of the population who report high-happiness across the survey years.
@@ -134,7 +133,7 @@ hist(z$hrs1[z$working_ft==1],
      main = ""
 )   
 ```
-**Figure 4: Work-hours of Full-Time Workers**
+  **Figure 4: Work-hours of Full-Time Workers**
 
 # Gender
 
@@ -211,7 +210,7 @@ ggplot() +
 ```
 **Figure 6: Happiness depending on income status**
 
-Figure 7 further differentiates between the four possible combinations of having a family (married and children) or not and having a high- or low-income job. Both college educated men and women report substantially higher happiness levels when having a family. When not having a family, higher income improves life satisfaction for both genders although the increase is larger for men. Gender differences become more pronounced once people have a family. With a family but without a high-income job women are the happiest, while men are considerably less happy, compared to having a career and a family. Thus, the "utility maximizing" equilibrium for married couples with kids still is still the male bread-winner model, which conflicts with more progressive gender norms and welfare state ambitions to include both genders equally into the labor market.
+Figure 7 further differentiates between the four possible combinations of having a family (married and children) or not and having a high- or low-income job. Both college educated men and women report substantially higher happiness levels when having a family. When not having a family, higher income improves life satisfaction for both genders although the increase is larger for men. Gender differences become more pronounced once people have a family. With a family but without a high-income job women are the happiest, while men are considerably less happy, compared to having a career and a family. These descriptive results suggests that married couples with kids are still best-off when following a male bread-winner model, which conflicts with more progressive gender norms and welfare state ambitions to include both genders equally into the labor market. In our final analysis we seek to identify the factors that are driving these results.
 
 ```{r, warning=FALSE, echo=FALSE}
 z$meanhap <- NA
