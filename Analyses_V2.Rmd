@@ -4,7 +4,10 @@ author: "Philip & Philipp"
 date: "14 Apr 2016"
 header-includes:
     - \usepackage{setspace}\doublespacing
-output: pdf_document
+output: 
+  pdf_document:
+    number_sections: yes
+    fig_caption: yes
 bibliography: 
 - main.bib
 - packages.bib
@@ -63,7 +66,8 @@ The scope of this paper is to combine data from the three above mentioned source
 
 Two of the central variables for our research is reported happiness and job-satisfaction, which are based on survey respondents' answers to the two questions: "Taken all together, how would you say things are these days?" and "On the whole, how satisfied are you with the work you do?". Figure 1 shows the distribution of answers to the two questions. The former is measured on a three point scale (higher is better), of which around 60 % of the sample respond a middle happiness level. The latter is measured on a four point scale, and figure 1 shows that a majority of the sample responds either moderate or high job satisfaction (score 3 and 4). 
 
-```{r, warning=FALSE, echo=FALSE}
+
+```{r, warning=FALSE, echo=FALSE, fig.cap="Life- and Work-Satisfaction"}
 happy_dist <- table(z$happy)/sum(table(z$happy))*100
 satjob_dist <- table(z$satjob)/sum(table(z$happy))*100
 
@@ -82,7 +86,8 @@ barplot(satjob_dist,
         legend = c("Job satisfcation"),
         ylim = c(0, 80))
 ```
-\linebreak[] **Figure 1: Life- and Work-Satisfaction**
+\linebreak 
+
 
 ## Average happiness in different survey years
 The GSS is conducted between 1972 and 2014. Due to year specific events, unintended differences in the implementation of the survey or trends in overall happiness, there can be year-specific differences. Figure 2 shows the average share of the population who report high-happiness across the survey years.
