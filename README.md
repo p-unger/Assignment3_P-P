@@ -16,5 +16,5 @@ In the assignment we gather and combine the data sources we need for the final r
 
 The "data" folder contains the data-sets used for the analysis. Downloading and transforming the data-sets is time-consuming, thus "data_combine.R" only downloads the files when they are not present in the data-folder. 
 
-**How to reproduce the paper**
+**How to reproduce the paper**  
 The markdown-file 'assignment3_philip_philipp.rmd' is dynamically reproducible and sources 'data_combine.R', which downloads and transforms all relevant sub-datasets into the final dataset. Note, however, that it is computational demanding and can take 15-35 minutes to run. To ease computation, each of the data-generation files saves a dataset after their first run, and if they are present in the "data" folder, the 'data_combine.R' skips the relevant phases. Further, if the final dataset is present in the "data" folder in the working directory, the markdown-file simply loads the final dataset rather than re-download and re-transform all the sub-datasets. 
